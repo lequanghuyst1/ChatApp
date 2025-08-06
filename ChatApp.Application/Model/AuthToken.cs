@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ChatApp.Application.Model
+{
+    public readonly struct AuthToken
+    {
+        public string AccessToken { get; init; }
+        public string RefreshToken { get; init; }
+    }
+}
