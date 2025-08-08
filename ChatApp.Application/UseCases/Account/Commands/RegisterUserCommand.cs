@@ -62,7 +62,7 @@ namespace ChatApp.Application.UseCases.Account.Commands
                 if (PolicyUtil.ValidateEmail(request.Username))
                     accountType = AccountType.EMAIL;
 
-                var newID = await _accountRepository.RegisterAsync(request.Username, SecurityLib.MD5Encrypt(request.Password), request.FirstName, request.LastName, accountType);
+                var newID = await _accountRepository.CreateAsync(request.Username, SecurityLib.MD5Encrypt(request.Password), request.FirstName, request.LastName, accountType);
 
                 var userProfile =  await _profileRepository.GetProfileAsync(newID);
 

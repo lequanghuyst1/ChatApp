@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MediatR;
+using ChatApp.Application.Model;
+using ChatApp.Application.Interfaces;
 
 namespace ChatApp.API.Controllers
 {
@@ -7,7 +9,8 @@ namespace ChatApp.API.Controllers
     [ApiController]
     public class BaseController : ControllerBase
     {
-        protected readonly IMediator _mediator ;
+        protected readonly IMediator _mediator;
+
 
         public BaseController(IMediator mediator)
         {

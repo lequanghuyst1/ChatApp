@@ -44,7 +44,7 @@ namespace ChatApp.Infrastructure.Repositories
             }
         }
 
-        public async Task<long> RegisterAsync(string username, string md5NewPassword, string firstName, string lastName, AccountType accountType)
+        public async Task<long> CreateAsync(string username, string md5NewPassword, string firstName, string lastName, AccountType accountType)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace ChatApp.Infrastructure.Repositories
                 parameters.Add("@LastName", lastName);
                 parameters.Add("@AccountType", accountType);
 
-                await ExecuteNonQuerySP("SP_Account_Register", parameters);
+                await ExecuteNonQuerySP("[dbo].[SP_Account_Create]", parameters);
 
                 var statusCode = parameters.Get<int>("@ResponseStatus");
                 var id = parameters.Get<long>("@ID");

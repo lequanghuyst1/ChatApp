@@ -13,6 +13,7 @@ namespace ChatApp.API.Controllers
 
         public AccountsController(IMediator mediator) : base(mediator)
         {
+
         }
 
         [HttpPost("login")]

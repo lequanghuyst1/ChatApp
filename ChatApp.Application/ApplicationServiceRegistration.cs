@@ -9,6 +9,7 @@ namespace ChatApp.Application
         public static void AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IIdentityService, IdentityService>();
         }
     }
 }

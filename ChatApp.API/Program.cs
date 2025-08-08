@@ -19,12 +19,12 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddHttpContextAccessor();
-
+builder.Services.AddSignalR();
 
 ApplicationServiceRegistration.AddApplicationServices(builder.Services);
 InfrastructureServiceRegistration.AddInfrastructureServices(builder.Services);
 
-// ??ng ký c?u hình JwtConfig
+// ??ng kï¿½ c?u hï¿½nh JwtConfig
 builder.Services.AddSingleton<JwtConfig>();
 
 builder.Services.AddMediatR(cfg =>
