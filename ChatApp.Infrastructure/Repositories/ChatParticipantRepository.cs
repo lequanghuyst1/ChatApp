@@ -13,7 +13,7 @@ namespace ChatApp.Infrastructure.Repositories
     {
         public ChatParticipantRepository(IConfiguration configuration) : base(configuration) { }
 
-        public async Task<long> CreateAsync(ChatParticipant participant)
+        public async Task<(long id, int status)> AddAsync(ChatParticipant participant)
         {
             var procName = "SP_ChatParticipant_Create";
             DynamicParameters parameters = new DynamicParameters();
@@ -24,11 +24,7 @@ namespace ChatApp.Infrastructure.Repositories
             parameters.Add("@ResponseStatus", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
             await ExecuteNonQuerySP(procName, parameters);
 
-            var status = parameters.Get<int>("@ResponseStatus");
-            if(status != 1){
-                return status;
-            }
-            return parameters.Get<long>("@ID");
+            return (parameters.Get<long>("@ID"), parameters.Get<int>("@ResponseStatus"));
         }
 
         public async Task<IEnumerable<ChatParticipant>> GetListByChatIdAsync(long chatId)

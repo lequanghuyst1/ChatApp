@@ -15,34 +15,30 @@ namespace ChatApp.Infrastructure.Repositories
 
         }
 
-        public async Task<long> CreateAsync(Chat chat, long userId, string userName)
+        public async Task<(long id, int status)> CreateAsync(Chat chat)
         {
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@Type", chat.Type);
             parameters.Add("@Title", chat.Title);
-            parameters.Add("@CreatedBy", userId);
-            parameters.Add("@CreatedByName", userName);
+            parameters.Add("@CreatedBy", chat.CreatedBy);
+            parameters.Add("@CreatedByName", chat.CreatedByName);
             parameters.Add("@ID", dbType: System.Data.DbType.Int64, direction: System.Data.ParameterDirection.Output);
             parameters.Add("@ResponseStatus", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
            
             await ExecuteNonQuerySP("[dbo].[SP_Chat_Create]", parameters);
 
-            var status = parameters.Get<int>("@ResponseStatus");
-            if(status != 1){
-                return status;
-            }
-            return parameters.Get<long>("@ID");
+            return (parameters.Get<long>("@ID"), parameters.Get<int>("@ResponseStatus"));
         }
 
-        public async Task<int> UpdateAsync(Chat chat, long userId, string userName)
+        public async Task<int> UpdateAsync(Chat chat)
         {
             DynamicParameters parameters = new DynamicParameters();
 
             parameters.Add("@ID", chat.ID);
             parameters.Add("@Type", chat.Type);
             parameters.Add("@Title", chat.Title);
-            parameters.Add("@UpdatedBy", userId);
-            parameters.Add("@UpdatedByName", userName);
+            parameters.Add("@UpdatedBy", chat.UpdatedBy);
+            parameters.Add("@UpdatedByName", chat.UpdatedByName);
             parameters.Add("@ResponseStatus", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
             
             await ExecuteNonQuerySP("[dbo].[SP_Chat_Update]", parameters);

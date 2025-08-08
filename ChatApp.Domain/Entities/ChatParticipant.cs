@@ -1,3 +1,5 @@
+using ChatApp.Domain.Enums;
+
 namespace ChatApp.Domain.Entities
 {
     public class ChatParticipant
@@ -5,7 +7,7 @@ namespace ChatApp.Domain.Entities
         public long ID { get; set; }
         public long ChatID { get; set; }
         public long UserID { get; set; }
-        public string Role { get; set; }
+        public ChatParticipantType Role { get; set; }
         public DateTime JoinedAt { get; set; }
     }
 }
