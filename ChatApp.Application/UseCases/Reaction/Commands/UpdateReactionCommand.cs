@@ -35,7 +35,7 @@ namespace ChatApp.Application.UseCases{
                 var reaction = new Reaction{
                     ID = request.ID,
                     MessageID = request.MessageID,
-                    UserID = userSession.Data.UserID,
+                    SenderID = userSession.Data.UserID,
                     Emoji = request.Emoji,
                 };
 

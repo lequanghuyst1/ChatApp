@@ -45,7 +45,7 @@ namespace ChatApp.Application.UseCases{
             return new ReactionDTO{
                 ID = reaction.ID,
                 MessageID = reaction.MessageID,
-                UserID = reaction.UserID,
+                SenderID = reaction.SenderID,
                 Emoji = reaction.Emoji,
                 CreatedAt = reaction.CreatedAt
             };

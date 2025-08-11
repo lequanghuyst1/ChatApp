@@ -1,5 +1,6 @@
 using ChatApp.Application.Interfaces;
 using ChatApp.Application.Model;
+using ChatApp.Domain.Entities;
 using ChatApp.Domain.Interfaces;
 using MediatR;
 
@@ -23,7 +24,7 @@ namespace ChatApp.Application.UseCases.Friend.Commands
         {
             try
             {
-                var userSession = _identityService.GetUser<UserSession>();
+                var userSession = _identityService.GetUser<UserProfile>();
 
                 if (userSession == null || userSession.Data == null)
                 {
@@ -33,7 +34,9 @@ namespace ChatApp.Application.UseCases.Friend.Commands
                     };
                 }
 
-                var status = await _friendRepository.RemoveFriendAsync(userSession.Data.UserID, request.FriendID);
+                var fullname = $"{userSession.Data.FirstName} {userSession.Data.LastName}";
+
+                var status = await _friendRepository.DeleteAsync(userSession.Data.UserID, request.FriendID, fullname);
 
                 return new APIResponse{
                     Code = status,
