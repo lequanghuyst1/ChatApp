@@ -4,6 +4,7 @@ using ChatApp.Application.Model;
 using ChatApp.Domain.Entities;
 using ChatApp.Domain.Interfaces;
 using MediatR;
+using AutoMapper;
 
 namespace ChatApp.Application.UseCases.Friend.Queries
 {
@@ -13,11 +14,13 @@ namespace ChatApp.Application.UseCases.Friend.Queries
     {
         private readonly IFriendRepository _friendRepository;
         private readonly IIdentityService _identityService;
+        private readonly IMapper _mapper;
 
-        public GetFriendListQueryHandler(IFriendRepository friendRepository, IIdentityService identityService)
+        public GetFriendListQueryHandler(IFriendRepository friendRepository, IIdentityService identityService, IMapper mapper)
         {
             _friendRepository = friendRepository;
             _identityService = identityService;
+            _mapper = mapper;
         }
 
         public async Task<APIResponse<IEnumerable<FriendDTO>>> Handle(GetFriendListQuery request, CancellationToken cancellationToken)
@@ -36,13 +39,7 @@ namespace ChatApp.Application.UseCases.Friend.Queries
         
                 var result = await _friendRepository.GetListByUserAsync(userSession.Data.UserID);
 
-                var friendDTOs = result.Select(friend => new FriendDTO{
-                      ID = friend.ID,
-                      UserID = friend.UserID,
-                      FriendID = friend.FriendID,
-                      Status = friend.Status,
-                      AddedAt = friend.AddedAt,
-                });
+                var friendDTOs = _mapper.Map<IEnumerable<FriendDTO>>(result); 
         
                 return new APIResponse<IEnumerable<FriendDTO>>{
                     Code = 1,

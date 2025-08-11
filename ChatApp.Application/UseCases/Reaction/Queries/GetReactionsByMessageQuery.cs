@@ -1,9 +1,8 @@
 using MediatR;
-using ChatApp.Domain.Entities;
 using ChatApp.Domain.Interfaces;
 using ChatApp.Application.Model;
-using ChatApp.Application.Interfaces;
 using ChatApp.Application.DTOs;
+using AutoMapper;
 
 namespace ChatApp.Application.UseCases{
     public class GetReactionsByMessageQuery : IRequest<APIResponse<IEnumerable<ReactionDTO>>>
@@ -14,10 +13,12 @@ namespace ChatApp.Application.UseCases{
     public class GetReactionsByMessageQueryHandler : IRequestHandler<GetReactionsByMessageQuery, APIResponse<IEnumerable<ReactionDTO>>>
     {
         private readonly IReactionRepository _reactionRepository;
+        private readonly IMapper _mapper;
 
-        public GetReactionsByMessageQueryHandler(IReactionRepository reactionRepository)
+        public GetReactionsByMessageQueryHandler(IReactionRepository reactionRepository, IMapper mapper)
         {
             _reactionRepository = reactionRepository;
+            _mapper = mapper;
         }
 
         public async Task<APIResponse<IEnumerable<ReactionDTO>>> Handle(GetReactionsByMessageQuery request, CancellationToken cancellationToken)
@@ -25,7 +26,7 @@ namespace ChatApp.Application.UseCases{
             try{
                 var reactions = await _reactionRepository.GetByMessageIdAsync(request.MessageID);
                 
-                var reactionDTOs = reactions.Select(r => mapToReactionDTO(r));
+                var reactionDTOs = _mapper.Map<IEnumerable<ReactionDTO>>(reactions);
 
                 return new APIResponse<IEnumerable<ReactionDTO>>{
                     Code = 1,
@@ -40,16 +41,5 @@ namespace ChatApp.Application.UseCases{
                 };
             }
         }
-
-        private ReactionDTO mapToReactionDTO(Reaction reaction){
-            return new ReactionDTO{
-                ID = reaction.ID,
-                MessageID = reaction.MessageID,
-                SenderID = reaction.SenderID,
-                Emoji = reaction.Emoji,
-                CreatedAt = reaction.CreatedAt
-            };
-        }
     }
-
 }

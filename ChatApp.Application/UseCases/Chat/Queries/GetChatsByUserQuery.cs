@@ -1,9 +1,10 @@
 using ChatApp.Application.DTOs;
 using ChatApp.Application.Interfaces;
 using ChatApp.Application.Model;
-using ChatApp.Domain.Entities;
 using ChatApp.Domain.Interfaces;
 using MediatR;
+using AutoMapper;
+using ChatApp.Domain.Entities;
 
 namespace ChatApp.Application.UseCases.Chat.Queries{
 
@@ -13,11 +14,13 @@ namespace ChatApp.Application.UseCases.Chat.Queries{
         private readonly IChatRepository _chatRepository;
         private readonly IIdentityService _identityService;
         private readonly IChatParticipantRepository _chatParticipantRepository;
+        private readonly IMapper _mapper;
        
-        public GetChatsByUserQueryHandler(IChatRepository chatRepository, IIdentityService identityService, IChatParticipantRepository chatParticipantRepository){
+        public GetChatsByUserQueryHandler(IChatRepository chatRepository, IIdentityService identityService, IChatParticipantRepository chatParticipantRepository, IMapper mapper){
             _chatRepository = chatRepository;
             _identityService = identityService;
             _chatParticipantRepository = chatParticipantRepository;
+            _mapper = mapper;
         }
        
         public async Task<APIResponse<IEnumerable<ChatDTO>>> Handle(GetChatsByUserQuery request, CancellationToken cancellationToken){
@@ -36,19 +39,7 @@ namespace ChatApp.Application.UseCases.Chat.Queries{
 
                 var participantIds = await _chatParticipantRepository.GetListByChatIdAsync(userSession.Data.UserID);
 
-                var chatDTOs = result.Select(chat => new ChatDTO{
-                    ID = chat.ID,
-                    Type = chat.Type,
-                    Title = chat.Title,
-                    CreatedBy = chat.CreatedBy,
-                    CreatedByName = chat.CreatedByName,
-                    CreatedAt = chat.CreatedAt,
-                    UpdatedBy = chat.UpdatedBy,
-                    UpdatedByName = chat.UpdatedByName,
-                    UpdatedAt = chat.UpdatedAt,
-                    IsDeleted = chat.IsDeleted,
-                    ParticipantIds = participantIds.Select(p => p.UserID).ToList(),
-                });
+                var chatDTOs = _mapper.Map<IEnumerable<ChatDTO>>(result);
                 
                 return new APIResponse<IEnumerable<ChatDTO>>{
                     Code = 1,
@@ -65,3 +56,4 @@ namespace ChatApp.Application.UseCases.Chat.Queries{
         }
     }
 }
+            

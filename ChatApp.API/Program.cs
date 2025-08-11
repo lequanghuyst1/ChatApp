@@ -1,11 +1,11 @@
 using AutoMapper;
 using ChatApp.Application;
+using ChatApp.Application.AutoMapper;
 using ChatApp.Infrastructure;
 using ChatApp.Infrastructure.Configurations;
 using ChatApp.Presentation.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,14 +21,16 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
 
-ApplicationServiceRegistration.AddApplicationServices(builder.Services);
-InfrastructureServiceRegistration.AddInfrastructureServices(builder.Services);
-
 // ??ng k� c?u h�nh JwtConfig
 builder.Services.AddSingleton<JwtConfig>();
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(AssemblyReference).Assembly));
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
+
+ApplicationServiceRegistration.AddApplicationServices(builder.Services);
+InfrastructureServiceRegistration.AddInfrastructureServices(builder.Services);
 
 builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, o =>
 {

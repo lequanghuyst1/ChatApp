@@ -18,7 +18,7 @@ namespace ChatApp.API.Controllers
         {
         }
 
-        [HttpPost]
+        [HttpPost("send")]
         public async Task<ActionResult<APIResponse<long>>> SendMessage([FromBody] SendMessageCommand command)
         {
             var result = await _mediator.Send(command);

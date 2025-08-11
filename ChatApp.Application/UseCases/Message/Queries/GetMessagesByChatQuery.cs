@@ -3,6 +3,7 @@ using ChatApp.Domain.Entities;
 using ChatApp.Domain.Interfaces;
 using ChatApp.Application.Model;
 using ChatApp.Application.DTOs;
+using AutoMapper;
 
 namespace ChatApp.Application.UseCases{
     public class GetMessagesByChatQuery : IRequest<APIResponse<IEnumerable<MessageDTO>>>{
@@ -13,9 +14,13 @@ namespace ChatApp.Application.UseCases{
 
     public class GetMessagesByChatQueryHandler : IRequestHandler<GetMessagesByChatQuery, APIResponse<IEnumerable<MessageDTO>>>{
         private readonly IMessageRepository _messageRepository;
+        private readonly IReactionRepository _reactionRepository;
+        private readonly IMapper _mapper;
 
-        public GetMessagesByChatQueryHandler(IMessageRepository messageRepository){
+        public GetMessagesByChatQueryHandler(IMessageRepository messageRepository, IReactionRepository reactionRepository, IMapper mapper){
             _messageRepository = messageRepository;
+            _reactionRepository = reactionRepository;
+            _mapper = mapper;
         }
 
         public async Task<APIResponse<IEnumerable<MessageDTO>>> Handle(GetMessagesByChatQuery request, CancellationToken cancellationToken){
@@ -23,7 +28,13 @@ namespace ChatApp.Application.UseCases{
                 var result = await _messageRepository.GetMessagesByChatIdAsync(request.ChatID, request.Page, request.PageSize);
 
 
-                var messageDTOs = result.Select(m => mapToMessageDTO(m));
+                var messageDTOs = _mapper.Map<IEnumerable<MessageDTO>>(result);
+
+                foreach(var messageDTO in messageDTOs){
+                    var reactions = await _reactionRepository.GetByMessageIdAsync(messageDTO.ID);
+
+                    messageDTO.Reactions = reactions.Select(r => _mapper.Map<ReactionDTO>(r));
+                }
 
                 return new APIResponse<IEnumerable<MessageDTO>>{
                     Code = 1,
@@ -40,20 +51,5 @@ namespace ChatApp.Application.UseCases{
             }
         }
 
-        private MessageDTO mapToMessageDTO(Message message){
-            return new MessageDTO{
-                ID = message.ID,
-                ChatID = message.ChatID,
-                SenderID = message.SenderID,
-                Content = message.Content,
-                MessageType = message.MessageType,
-                CreatedAt = message.CreatedAt,
-                IsEdited = message.IsEdited,
-                EditedAt = message.EditedAt,
-                IsDeleted = message.IsDeleted,
-                DeletedAt = message.DeletedAt,
-                ReadBy = message.ReadBy,
-            };
-        }
     }
 }

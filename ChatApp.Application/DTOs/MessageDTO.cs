@@ -17,6 +17,6 @@ namespace ChatApp.Application.DTOs
         public bool IsDeleted { get; set; }
         public DateTime? DeletedAt { get; set; }
         public string ReadBy { get; set; }
-        public IEnumerable<ReactionDTO> Reactions { get; set; } = new List<ReactionDTO>();
+        public IEnumerable<ReactionDTO> Reactions { get; set; }
     }
 }
