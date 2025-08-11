@@ -7,6 +7,8 @@ namespace ChatApp.Application.DTOs
         public long ID { get; set; }
         public long ChatID { get; set; }
         public long SenderID { get; set; }
+        public string SenderName { get; set; }
+        public string SenderAvatar { get; set; }
         public string Content { get; set; }
         public MessageType MessageType { get; set; }
         public DateTime CreatedAt { get; set; }

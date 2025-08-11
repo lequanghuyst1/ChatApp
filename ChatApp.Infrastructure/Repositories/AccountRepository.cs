@@ -21,7 +21,7 @@ namespace ChatApp.Infrastructure.Repositories
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@ID", userId);
-                return await GetInstance<Account>("SP_Account_GetById", parameters);
+                return await GetInstance<Account>("[dbo].[SP_Account_GetById]", parameters);
             }
             catch (Exception ex)
             {
@@ -36,7 +36,7 @@ namespace ChatApp.Infrastructure.Repositories
                 var parameters = new DynamicParameters();
                 parameters.Add("@Username", username);
                 parameters.Add("@Password", md5Password);
-                return await GetInstance<Account>("SP_Account_Authenticate", parameters);
+                return await GetInstance<Account>("[dbo].[SP_Account_Authenticate]", parameters);
             }
             catch (Exception ex)
             {
@@ -75,13 +75,35 @@ namespace ChatApp.Infrastructure.Repositories
             }
         }
 
+        public async Task<int> UpdateAsync(Account account)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserID", account.UserID);
+                parameters.Add("@IsActive", account.IsActive);
+                parameters.Add("@IsOnline", account.IsOnline);
+                parameters.Add("@LastSeen", account.LastSeen);
+                parameters.Add("@ResponseStatus", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
+                await ExecuteNonQuerySP("[dbo].[SP_Account_Update]", parameters);
+
+                var status = parameters.Get<int>("@ResponseStatus");
+
+                return status;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to update account", ex);
+            }
+        }
+
         public async Task<Account> GetAccountByUsernameAsync(string username)
         {
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@Username", username);
-                return await GetInstance<Account>("SP_Account_GetByUsername", parameters);
+                return await GetInstance<Account>("[dbo].[SP_Account_GetByUsername]", parameters);
             }
             catch (Exception ex)
             {
@@ -98,7 +120,7 @@ namespace ChatApp.Infrastructure.Repositories
                 parameters.Add("@ID", userId);
                 parameters.Add("@Password", md5NewPassword);
 
-                await ExecuteNonQuerySP("SP_Account_ResetPassword", parameters);
+                await ExecuteNonQuerySP("[dbo].[SP_Account_ResetPassword]", parameters);
 
                 var statusCode = parameters.Get<int>("@ResponseStatus");
 
@@ -111,4 +133,7 @@ namespace ChatApp.Infrastructure.Repositories
         }
     }
 }
+
+
+
 

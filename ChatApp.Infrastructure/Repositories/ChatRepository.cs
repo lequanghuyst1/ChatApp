@@ -37,11 +37,25 @@ namespace ChatApp.Infrastructure.Repositories
             parameters.Add("@ID", chat.ID);
             parameters.Add("@Type", chat.Type);
             parameters.Add("@Title", chat.Title);
-            parameters.Add("@UpdatedBy", chat.UpdatedBy);
+            parameters.Add("@   ", chat.UpdatedBy);
             parameters.Add("@UpdatedByName", chat.UpdatedByName);
             parameters.Add("@ResponseStatus", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
             
             await ExecuteNonQuerySP("[dbo].[SP_Chat_Update]", parameters);
+
+            var status = parameters.Get<int>("@ResponseStatus");
+            
+            return status;
+        }
+
+        public async Task<int> LeaveAsync(long chatId, long userId)
+        {
+            DynamicParameters parameters = new DynamicParameters();
+            parameters.Add("@ChatID", chatId);
+            parameters.Add("@UserID", userId);
+            parameters.Add("@ResponseStatus", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
+            
+            await ExecuteNonQuerySP("[dbo].[SP_Chat_Leave]", parameters);
 
             var status = parameters.Get<int>("@ResponseStatus");
             

@@ -1,3 +1,4 @@
+using ChatApp.Application.DTOs;
 using ChatApp.Application.Interfaces;
 using ChatApp.Application.Model;
 using ChatApp.Domain.Entities;
@@ -6,9 +7,9 @@ using MediatR;
 
 namespace ChatApp.Application.UseCases.Friend.Queries
 {
-    public record GetFriendListQuery() : IRequest<APIResponse<IEnumerable<UserFriend>>>;
+    public record GetFriendListQuery() : IRequest<APIResponse<IEnumerable<FriendDTO>>>;
 
-    public class GetFriendListQueryHandler : IRequestHandler<GetFriendListQuery, APIResponse<IEnumerable<UserFriend>>>
+    public class GetFriendListQueryHandler : IRequestHandler<GetFriendListQuery, APIResponse<IEnumerable<FriendDTO>>>
     {
         private readonly IFriendRepository _friendRepository;
         private readonly IIdentityService _identityService;
@@ -19,7 +20,7 @@ namespace ChatApp.Application.UseCases.Friend.Queries
             _identityService = identityService;
         }
 
-        public async Task<APIResponse<IEnumerable<UserFriend>>> Handle(GetFriendListQuery request, CancellationToken cancellationToken)
+        public async Task<APIResponse<IEnumerable<FriendDTO>>> Handle(GetFriendListQuery request, CancellationToken cancellationToken)
         {
             try
             {
@@ -27,23 +28,31 @@ namespace ChatApp.Application.UseCases.Friend.Queries
 
                 if (userSession == null || userSession.Data == null)
                 {
-                    return new APIResponse<IEnumerable<UserFriend>>{
+                    return new APIResponse<IEnumerable<FriendDTO>>{
                         Code = 0,
                         Message = "User is not authenticated",
                     };
                 }
         
                 var result = await _friendRepository.GetListByUserAsync(userSession.Data.UserID);
+
+                var friendDTOs = result.Select(friend => new FriendDTO{
+                      ID = friend.ID,
+                      UserID = friend.UserID,
+                      FriendID = friend.FriendID,
+                      Status = friend.Status,
+                      AddedAt = friend.AddedAt,
+                });
         
-                return new APIResponse<IEnumerable<UserFriend>>{
+                return new APIResponse<IEnumerable<FriendDTO>>{
                     Code = 1,
-                    Data = result,
+                    Data = friendDTOs,
                     Message = "Get friend list success",
                 };
             }
             catch (Exception ex)
             {
-                return new APIResponse<IEnumerable<UserFriend>>{
+                return new APIResponse<IEnumerable<FriendDTO>>{
                     Code = 0,
                     Message = "Get friend list failed: " + ex.Message,
                 };

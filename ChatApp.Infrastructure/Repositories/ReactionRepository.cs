@@ -12,16 +12,31 @@ namespace ChatApp.Infrastructure.Repositories
     {
         public ReactionRepository(IConfiguration configuration) : base(configuration) { }
 
-        public async Task<long> CreateAsync(Reaction reaction)
+        public async Task<(long id, int status)> CreateAsync(Reaction reaction)
         {
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@MessageID", reaction.MessageID);
-            parameters.Add("@UserID", reaction.UserID);
+            parameters.Add("@SenderID", reaction.SenderID);
             parameters.Add("@Emoji", reaction.Emoji);
             parameters.Add("@ID", dbType: System.Data.DbType.Int64, direction: System.Data.ParameterDirection.Output);
             parameters.Add("@ResponseStatus", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
+           
             await ExecuteNonQuerySP("[dbo].[SP_Reaction_Create]", parameters);
-            return parameters.Get<long>("@ID");
+
+            return (parameters.Get<long>("@ID"), parameters.Get<int>("@ResponseStatus"));
+        }
+
+        public async Task<int> UpdateAsync(Reaction reaction)
+        {
+            DynamicParameters parameters = new DynamicParameters();
+            parameters.Add("@ID", reaction.ID);
+            parameters.Add("@SenderID", reaction.SenderID);
+            parameters.Add("@Emoji", reaction.Emoji);
+            parameters.Add("@ResponseStatus", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
+           
+            await ExecuteNonQuerySP("[dbo].[SP_Reaction_Update]", parameters);
+
+            return parameters.Get<int>("@ResponseStatus");
         }
 
         public async Task<int> RemoveAsync(long id)

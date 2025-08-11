@@ -1,8 +1,13 @@
-using ChatApp.Domain.Enums;
+﻿using ChatApp.Domain.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ChatApp.Domain.Entities
+namespace ChatApp.Application.DTOs
 {
-    public class ChatParticipant
+    public class ChatParticipantDTO
     {
         public long ID { get; set; }
         public long ChatID { get; set; }

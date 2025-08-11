@@ -13,7 +13,7 @@ namespace ChatApp.Infrastructure.Repositories
     {
         public MessageRepository(IConfiguration configuration) : base(configuration) { }
 
-        public async Task<long> CreateAsync(Message message)
+        public async Task<(long id, int status)> CreateAsync(Message message)
         {
             DynamicParameters parameters = new DynamicParameters();
 
@@ -26,10 +26,7 @@ namespace ChatApp.Infrastructure.Repositories
             await ExecuteNonQuerySP("[dbo].[SP_Message_Create]", parameters);
 
             var status = parameters.Get<int>("@ResponseStatus");
-            if(status != 1){
-                return status;
-            }
-            return parameters.Get<long>("@ID");
+            return (parameters.Get<long>("@ID"), status);
         }
 
         public async Task<int> UpdateAsync(Message message)

@@ -8,10 +8,10 @@ namespace ChatApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountsController : BaseController
+    public class AccountController : BaseController
     {
 
-        public AccountsController(IMediator mediator) : base(mediator)
+        public AccountController(IMediator mediator) : base(mediator)
         {
 
         }

@@ -4,21 +4,21 @@ using ChatApp.Domain.Repositories;
 using ChatApp.Application.DTOs.Profile;
 using ChatApp.Application.Model;
 using FluentValidation;
+using ChatApp.Application.Interfaces;
 
 namespace ChatApp.Application.UseCases.Profile.Queries
 {
-    public class GetProfileByIdQuery : IRequest<APIResponse<UserProfileDTO>>
-    {
-        public long UserID { get; set; }
-    }
+    public record GetProfileByIdQuery() : IRequest<APIResponse<UserProfileDTO>> { }
 
     public class GetProfileByIdQueryHandler : IRequestHandler<GetProfileByIdQuery, APIResponse<UserProfileDTO>>
     {
         private readonly IProfileRepository _profileRepository;
+        private readonly IIdentityService _identityService;
 
-        public GetProfileByIdQueryHandler(IProfileRepository profileRepository)
+        public GetProfileByIdQueryHandler(IProfileRepository profileRepository, IIdentityService identityService)
         {
             _profileRepository = profileRepository;
+            _identityService = identityService;
         }
 
         // public class GetProfileByIdQueryValidator : AbstractValidator<GetProfileByIdQuery>
@@ -39,7 +39,9 @@ namespace ChatApp.Application.UseCases.Profile.Queries
         {
            try
            {
-               var profile = await _profileRepository.GetProfileAsync(request.UserID);
+               var userSession = _identityService.GetUser<UserProfileDTO>();
+               
+               var profile = await _profileRepository.GetProfileAsync(userSession.UserID);
                
                if (profile == null)
                {

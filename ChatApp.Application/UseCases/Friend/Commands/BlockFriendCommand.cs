@@ -7,21 +7,23 @@ using MediatR;
 
 namespace ChatApp.Application.UseCases.Friend.Commands
 {
-    public record AcceptFriendCommand(long FriendID) : IRequest<APIResponse>;
+    public class BlockFriendCommand : IRequest<APIResponse>{
+        public long FriendID { get; set; }
+    }
 
-    public class AcceptFriendCommandHandler : IRequestHandler<AcceptFriendCommand, APIResponse>
+    public class BlockFriendCommandHandler : IRequestHandler<BlockFriendCommand, APIResponse>
     {
         private readonly IFriendRepository _friendRepository;
 
         private readonly IIdentityService _identityService;
         
-        public AcceptFriendCommandHandler(IFriendRepository friendRepository, IIdentityService identityService)
+        public BlockFriendCommandHandler(IFriendRepository friendRepository, IIdentityService identityService)
         {
             _friendRepository = friendRepository;
             _identityService = identityService;
         }
 
-        public async Task<APIResponse> Handle(AcceptFriendCommand request, CancellationToken cancellationToken)
+        public async Task<APIResponse> Handle(BlockFriendCommand request, CancellationToken cancellationToken)
         {
             try
             {
@@ -37,18 +39,18 @@ namespace ChatApp.Application.UseCases.Friend.Commands
 
                 var fullname = $"{userSession.Data.FirstName} {userSession.Data.LastName}";
 
-                var status = await _friendRepository.AcceptAsync(userSession.Data.UserID, request.FriendID, fullname);
+                var status = await _friendRepository.BlockAsync(userSession.Data.UserID, request.FriendID, fullname);
                 
                 return new APIResponse{
                     Code = status,
-                    Message = "Friend request accepted",
+                    Message = "Friend blocked",
                 };
             }
             catch (Exception ex)
             {
                 return new APIResponse{
                     Code = 0,
-                    Message = "Accept friend failed: " + ex.Message,
+                    Message = "Block friend failed: " + ex.Message,
                 };
             }
         }

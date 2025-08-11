@@ -9,5 +9,6 @@ namespace ChatApp.Domain.Interfaces
         Task<(long id, int status)> CreateAsync(Chat chat);
         Task<int> UpdateAsync(Chat chat);
         Task<int> DeleteAsync(long id);
+        Task<int> LeaveAsync(long chatId, long userId);
     }
 }

@@ -71,7 +71,7 @@ namespace ChatApp.Application.UseCases.Chat.Commands
                         Role = role,
                     };
 
-                    await _chatParticipantRepository.CreateAsync(chatParticipant);
+                    await _chatParticipantRepository.AddAsync(chatParticipant);
                 }
 
                 transaction.Complete();

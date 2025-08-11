@@ -7,7 +7,7 @@ using MediatR;
 
 namespace ChatApp.Application.UseCases.Chat.Queries{
 
-    public record GetChatsByUserQuery() : IRequest<APIResponse<IEnumerable<ChatDTO>>>;
+    public record GetChatsByUserQuery() : IRequest<APIResponse<IEnumerable<ChatDTO>>>{};
     
     public class GetChatsByUserQueryHandler : IRequestHandler<GetChatsByUserQuery, APIResponse<IEnumerable<ChatDTO>>>{
         private readonly IChatRepository _chatRepository;

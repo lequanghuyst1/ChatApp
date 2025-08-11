@@ -7,21 +7,21 @@ using MediatR;
 
 namespace ChatApp.Application.UseCases.Friend.Commands
 {
-    public record AcceptFriendCommand(long FriendID) : IRequest<APIResponse>;
+    public record RejectFriendCommand(long friendID) : IRequest<APIResponse>;
 
-    public class AcceptFriendCommandHandler : IRequestHandler<AcceptFriendCommand, APIResponse>
+    public class RejectFriendCommandHandler : IRequestHandler<RejectFriendCommand, APIResponse>
     {
         private readonly IFriendRepository _friendRepository;
 
         private readonly IIdentityService _identityService;
         
-        public AcceptFriendCommandHandler(IFriendRepository friendRepository, IIdentityService identityService)
+        public RejectFriendCommandHandler(IFriendRepository friendRepository, IIdentityService identityService)
         {
             _friendRepository = friendRepository;
             _identityService = identityService;
         }
 
-        public async Task<APIResponse> Handle(AcceptFriendCommand request, CancellationToken cancellationToken)
+        public async Task<APIResponse> Handle(RejectFriendCommand request, CancellationToken cancellationToken)
         {
             try
             {
@@ -37,18 +37,18 @@ namespace ChatApp.Application.UseCases.Friend.Commands
 
                 var fullname = $"{userSession.Data.FirstName} {userSession.Data.LastName}";
 
-                var status = await _friendRepository.AcceptAsync(userSession.Data.UserID, request.FriendID, fullname);
+                var status = await _friendRepository.RejectAsync(userSession.Data.UserID, request.friendID, fullname);
                 
                 return new APIResponse{
                     Code = status,
-                    Message = "Friend request accepted",
+                    Message = "Friend request rejected",
                 };
             }
             catch (Exception ex)
             {
                 return new APIResponse{
                     Code = 0,
-                    Message = "Accept friend failed: " + ex.Message,
+                    Message = "Reject friend failed: " + ex.Message,
                 };
             }
         }

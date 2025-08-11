@@ -8,7 +8,7 @@ namespace ChatApp.Domain.Interfaces
     {
         Task<Message> GetByIdAsync(long id);
         Task<IEnumerable<Message>> GetMessagesByChatIdAsync(long chatId, int page, int pageSize);
-        Task<long> CreateAsync(Message message);
+        Task<(long id, int status)> CreateAsync(Message message);
         Task<int> UpdateAsync(Message message);
         Task<int> DeleteAsync(long id);
     }
