@@ -73,7 +73,7 @@ namespace ChatApp.API.Controllers
         /// Lấy danh sách bạn bè của người dùng hiện tại.
         /// </summary>
         /// <returns>Danh sách bạn bè.</returns>
-        [HttpGet("list")]
+        [HttpGet("get-list")]
         public async Task<ActionResult<APIResponse<IEnumerable<FriendDTO>>>> GetFriendList()
         {
             var result = await _mediator.Send(new GetFriendListQuery());

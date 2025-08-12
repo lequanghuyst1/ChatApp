@@ -14,6 +14,5 @@ namespace ChatApp.Domain.Entities
         public string UpdatedByName { get; set; }
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
-        
     }
 }
