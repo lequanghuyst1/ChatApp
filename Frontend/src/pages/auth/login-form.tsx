@@ -1,64 +1,74 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import { Box, TextField } from "@mui/material";
+import React from "react";
+import { Controller, useForm } from "react-hook-form";
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
 }
 
 interface LoginFormInputs {
-  email: string;
+  username: string;
   password: string;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormInputs>();
 
   const onSubmit = (data: LoginFormInputs) => {
-    // Handle login logic here
-    console.log('Login:', data);
+    console.log("Login:", data);
   };
 
   return (
-    <div className="auth-form-container">
+    <Box>
       <h2>Login</h2>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label>Email</label>
-          <input
-            {...register('email', {
-              required: 'Email is required',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Invalid email address',
-              },
-            })}
-            type="email"
-            placeholder="Enter your email"
+        <Box>
+          <Controller
+            name="username"
+            control={control}
+            rules={{
+              required: "Username is required",
+            }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Username"
+                error={!!errors.username}
+                helperText={errors.username?.message}
+              />
+            )}
           />
-          {errors.email && <span className="error">{errors.email.message}</span>}
-        </div>
-        <div>
-          <label>Password</label>
-          <input
-            {...register('password', { required: 'Password is required' })}
-            type="password"
-            placeholder="Enter your password"
+        </Box>
+        <Box>
+          <Controller
+            name="password"
+            control={control}
+            rules={{ required: "Password is required" }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Password"
+                type="password"
+                error={!!errors.password}
+                helperText={errors.password?.message}
+              />
+            )}
           />
-          {errors.password && <span className="error">{errors.password.message}</span>}
-        </div>
+        </Box>
         <button type="submit">Login</button>
       </form>
       <p>
-        Don't have an account?{' '}
-        <button type="button" onClick={onSwitchToRegister} className="switch-btn">
+        Don't have an account?{" "}
+        <button type="button" onClick={onSwitchToRegister}>
           Register
         </button>
       </p>
-    </div>
+    </Box>
   );
 };
 

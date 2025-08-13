@@ -6,4 +6,7 @@ export const paths = {
   chat: {
     detail: "/chat/:id",
   },
+  dashboard: {
+    root: "/dashboard",
+  },
 };

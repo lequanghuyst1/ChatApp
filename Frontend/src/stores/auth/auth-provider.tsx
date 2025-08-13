@@ -77,6 +77,8 @@ const STORAGE_KEY = "accessToken";
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  console.log(state);
+
   const toCamelCase = useCallback((o: any): any => {
     if (Array.isArray(o)) {
       return o.map((value: any) => {
@@ -128,7 +130,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const accessToken = localStorage.getItem(STORAGE_KEY);
 
       if (accessToken && isValidToken(accessToken)) {
-        
         const tokenDecode = jwtDecode(accessToken);
 
         const profile = parseWithStringValues(tokenDecode.Data as string);
@@ -251,6 +252,5 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     </AuthContext.Provider>
   );
 };
-
 
 export default AuthProvider;
