@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 /// </summary>
 namespace ChatApp.API.Controllers
 {
-    [Route("api/[controller]")]
     public class FriendController : BaseController
     {
         /// <summary>

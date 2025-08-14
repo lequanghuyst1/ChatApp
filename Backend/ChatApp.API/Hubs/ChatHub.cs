@@ -175,7 +175,7 @@ namespace ChatApp.Presentation.Hubs
                     await Clients.All.SendAsync("UserOnline", _userSession.Data.UserID);
                 }
 
-                _logger.LogInformation($"User {_userSession.Data.UserID} connected and set to online");
+                _logger.LogInformation($"User {_userSession.Data.FullName} connected and set to online");
                 await base.OnConnectedAsync();
             }
             catch (Exception ex)
@@ -212,7 +212,7 @@ namespace ChatApp.Presentation.Hubs
                     await Clients.All.SendAsync("UserOffline", _userSession.Data.UserID);
                 }
 
-                _logger.LogInformation($"User {_userSession.Data.UserID} disconnected and set to offline");
+                _logger.LogInformation($"User {_userSession.Data.FullName} disconnected and set to offline");
 
                 await base.OnDisconnectedAsync(exception);
             }

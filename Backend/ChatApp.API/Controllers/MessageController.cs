@@ -9,8 +9,6 @@ using ChatApp.Application.DTOs;
 
 namespace ChatApp.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     [Authorize]
     public class MessageController : BaseController
     {

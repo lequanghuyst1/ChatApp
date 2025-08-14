@@ -6,8 +6,6 @@ using ChatApp.Application.UseCases;
 
 namespace ChatApp.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class ReactionController : BaseController
     {
         public ReactionController(Mediator mediator) : base(mediator)

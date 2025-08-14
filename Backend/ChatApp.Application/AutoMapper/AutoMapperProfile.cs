@@ -1,5 +1,6 @@
 using AutoMapper;
 using ChatApp.Application.DTOs;
+using ChatApp.Application.DTOs.Profile;
 using ChatApp.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace ChatApp.Application.AutoMapper
             CreateMap<ReactionDTO, Reaction>().ReverseMap();
             CreateMap<ChatParticipantDTO, ChatParticipant>().ReverseMap();
             CreateMap<FriendDTO, FriendDTO>().ReverseMap();
+            CreateMap<UserProfileDTO, UserProfile>().ReverseMap();
         }
     }
 }

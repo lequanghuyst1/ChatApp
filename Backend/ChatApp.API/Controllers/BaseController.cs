@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MediatR;
+﻿using ChatApp.Application.Interfaces;
 using ChatApp.Application.Model;
-using ChatApp.Application.Interfaces;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BaseController : ControllerBase

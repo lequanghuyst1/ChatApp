@@ -9,15 +9,15 @@ using AutoMapper;
 
 namespace ChatApp.Application.UseCases.Profile.Queries
 {
-    public record GetProfileByIdQuery() : IRequest<APIResponse<UserProfileDTO>> { }
+    public record GetUsersQuery(string? Keyword) : IRequest<APIResponse<IEnumerable<UserProfileDTO>>>;
 
-    public class GetProfileByIdQueryHandler : IRequestHandler<GetProfileByIdQuery, APIResponse<UserProfileDTO>>
+    public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, APIResponse<IEnumerable<UserProfileDTO>>>
     {
         private readonly IProfileRepository _profileRepository;
         private readonly IIdentityService _identityService;
         private readonly IMapper _mapper;
 
-        public GetProfileByIdQueryHandler(IProfileRepository profileRepository, IIdentityService identityService, IMapper mapper)
+        public GetUsersQueryHandler(IProfileRepository profileRepository, IIdentityService identityService, IMapper mapper)
         {
             _profileRepository = profileRepository;
             _identityService = identityService;
@@ -38,28 +38,20 @@ namespace ChatApp.Application.UseCases.Profile.Queries
         //     }
         // }
 
-        public async Task<APIResponse<UserProfileDTO>> Handle(GetProfileByIdQuery request, CancellationToken cancellationToken)
+        public async Task<APIResponse<IEnumerable<UserProfileDTO>>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
         {
            try
            {
-               var userSession = _identityService.GetUser<UserProfileDTO>();
+                var userSession = _identityService.GetUser<UserProfileDTO>();
                
-               var profile = await _profileRepository.GetProfileAsync(userSession.UserID);
-               
-               if (profile == null)
-               {
-                    return new APIResponse<UserProfileDTO>
-                    {
-                        Code = -99,
-                        Message = "Thông tin không tồn tại"
-                    };
-               }
+               var result = await _profileRepository.GetUserListAsync(request.Keyword, userSession.Data.UserID);
+               var resultDTO = _mapper.Map<IEnumerable<UserProfileDTO>>(result);
 
-               return APIResponse<UserProfileDTO>.Success(_mapper.Map<UserProfileDTO>(profile), "Thành công");
+               return APIResponse<IEnumerable<UserProfileDTO>>.Success(resultDTO, "Thành công");
            }
            catch (Exception ex)
            {
-                return new APIResponse<UserProfileDTO>
+                return new APIResponse<IEnumerable<UserProfileDTO>>
                 {
                     Code = -99,
                     Message = ex.Message
@@ -68,3 +60,4 @@ namespace ChatApp.Application.UseCases.Profile.Queries
         }
     }
 }
+              

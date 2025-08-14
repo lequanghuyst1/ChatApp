@@ -81,6 +81,7 @@ export const endpoints = {
   },
   profile: {
     getProfile: "api/profile/get-profile",
+    getUsers: "api/profile/get-users",
   },
   reaction: {
     getListByMessage: "api/reaction/list",

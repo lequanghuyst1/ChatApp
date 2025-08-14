@@ -97,5 +97,20 @@ namespace ChatApp.Infrastructure.Repositories
                 throw new Exception("Failed to update profile", ex);
            }
         }
+
+        public async Task<IEnumerable<UserProfile>> GetUserListAsync(string keyword, long userId)
+        {
+           try
+           {
+                var parameters = new DynamicParameters();
+                parameters.Add("@Keyword", keyword);
+                parameters.Add("@UserID", userId);
+                return await GetListSP<UserProfile>("[dbo].[SP_Profile_GetUserList]", parameters);
+           }
+           catch (Exception ex)
+           {
+                throw new Exception("Failed to get user list", ex);
+           }
+        }
     }
 }

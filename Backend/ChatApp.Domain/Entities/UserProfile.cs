@@ -7,6 +7,7 @@ namespace ChatApp.Domain.Entities
         public string LastName { get; set; }
         public string Avatar { get; set; }
         public DateTime? DateOfBirth { get; set; }
+        public string FullName => $"{FirstName} {LastName}";
         public string Phone { get; set; }
         public string Email { get; set; }
         public int Gender { get; set; }

@@ -9,8 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.API.Controllers
 {
-    [Authorize]
-    [Route("api/[controller]")]
     public class ChatController : BaseController
     {
         public ChatController(IMediator mediator) : base(mediator)

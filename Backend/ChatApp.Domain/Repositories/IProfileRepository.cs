@@ -8,5 +8,6 @@ namespace ChatApp.Domain.Repositories
         Task<int> UpdateProfileAsync(long userId, UserProfile profile);
         Task<int> UpdateAvatarAsync(long userId, string avatar);
         Task<int> UpdateBioAsync(long userId, string bio);
+        Task<IEnumerable<UserProfile>> GetUserListAsync(string keyword, long userId);
     }
 }

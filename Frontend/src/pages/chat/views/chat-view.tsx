@@ -4,11 +4,17 @@ import { useGetListChat } from "../../../apis/chat";
 import ChatDetail from "../chat-detail";
 import ChatList from "../chat-list";
 import ChatToolbar from "../chat-toolbar";
+import useSignalR from "../hooks/useSignalR";
+import { useGetListUser } from "../../../apis/profile";
 
 function ChatView() {
   const { chats, chatsLoading, chatsError, chatsValidating } = useGetListChat();
 
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
+
+  const { hubState, hubConnection } = useSignalR();
+
+  const { users } = useGetListUser("");
 
   return (
     <Grid container>
