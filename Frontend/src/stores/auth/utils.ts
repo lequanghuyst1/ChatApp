@@ -1,8 +1,7 @@
 // ----------------------------------------------------------------------
 
-import axios from "axios";
 import { paths } from "../../routes/paths";
-import { endpoints } from "../../utils/axios";
+import axiosInstance, { endpoints } from "../../utils/axios";
 
 export function jwtDecode(token: string) {
   const base64Url = token.split(".")[1];
@@ -93,7 +92,7 @@ export const setSession = (accessToken: string | null) => {
     sessionStorage.setItem("accessToken", accessToken);
     localStorage.setItem("accessToken", accessToken);
 
-    axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+    axiosInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
     // This function below will handle when token is expired
     const { exp } = jwtDecode(accessToken); // ~3 days by minimals server
@@ -101,7 +100,7 @@ export const setSession = (accessToken: string | null) => {
   } else {
     localStorage.removeItem("accessToken");
 
-    delete axios.defaults.headers.common.Authorization;
+    delete axiosInstance.defaults.headers.common.Authorization;
   }
 };
 
@@ -117,7 +116,7 @@ export const setRefreshToken = (refreshToken: string | null) => {
   } else {
     localStorage.removeItem("refreshToken");
 
-    delete axios.defaults.headers.common.Authorization;
+    delete axiosInstance.defaults.headers.common.Authorization;
   }
 };
 
@@ -131,7 +130,7 @@ export const reFreshToken = async () => {
   }
 
   try {
-    const response = await axios.post(endpoints.auth.retoken, { refreshToken });
+    const response = await axiosInstance.post(endpoints.auth.retoken, { refreshToken });
 
     const { accessToken, refreshToken: newRefreshToken } = response.data.data;
 

@@ -16,7 +16,14 @@ export const loginApi = async (
       `${URL.login}`,
       payload
     );
-    return response.data;
+
+    const { code, data, message } = response.data;
+
+    if (code !== 1) {
+      throw new Error(message);
+    }
+
+    return { code, data, message };
   } catch (error) {
     throw error;
   }
@@ -30,7 +37,14 @@ export const registerApi = async (
       `${URL.register}`,
       payload
     );
-    return response.data;
+
+    const { code, data, message } = response.data;
+
+    if (code !== 1) {
+      throw new Error(message);
+    }
+
+    return { code, data, message };
   } catch (error) {
     throw error;
   }

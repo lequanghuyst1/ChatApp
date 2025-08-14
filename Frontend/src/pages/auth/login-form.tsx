@@ -89,18 +89,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
           </LoadingButton>
         </Stack>
       </form>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          mt: 2,
-        }}
-      >
+      <Box sx={{ display: "flex", alignItems: "center", mt: 2, gap: 1 }}>
         <Typography variant="body2">Don't have an account?</Typography>
-        <Button onClick={onSwitchToRegister} variant="outlined" sx={{ mt: 0 }}>
+        <Typography
+          variant="body2"
+          sx={{ cursor: "pointer", color: "primary.main" }}
+          onClick={onSwitchToRegister}
+        >
           Register
-        </Button>
+        </Typography>
       </Box>
     </Box>
   );

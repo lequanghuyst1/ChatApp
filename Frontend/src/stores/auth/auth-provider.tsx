@@ -64,7 +64,7 @@ const reducer = (state: AuthStateType, action: AuthAction) => {
     case Types.LOGIN:
       return { ...state, user: action.payload.user };
     case Types.REGISTER:
-      return { ...state, user: action.payload.user};
+      return { ...state, user: action.payload.user };
     case Types.LOGOUT:
       return { ...state, user: null };
     default:
@@ -171,11 +171,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = useCallback(async (payload: ILoginRequest) => {
     try {
-      const { data, code, message } = await loginApi(payload);
-
-      if (code !== 1) {
-        throw new Error(message);
-      }
+      const { data } = await loginApi(payload);
 
       const { accessToken, refreshToken, profile } = data;
 
