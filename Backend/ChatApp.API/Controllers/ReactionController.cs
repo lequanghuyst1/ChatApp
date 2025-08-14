@@ -8,7 +8,7 @@ namespace ChatApp.API.Controllers
 {
     public class ReactionController : BaseController
     {
-        public ReactionController(Mediator mediator) : base(mediator)
+        public ReactionController(IMediator mediator) : base(mediator)
         {
         }
 
