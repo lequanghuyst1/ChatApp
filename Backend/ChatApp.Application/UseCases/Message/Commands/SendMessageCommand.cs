@@ -30,7 +30,8 @@ namespace ChatApp.Application.UseCases{
                 if (userSession == null || userSession.Data == null)
                 {
                     return new APIResponse<long>{
-                        Code = 0,
+                        Code = -99,
+                        Data = 0,
                         Message = "User is not authenticated",
                     };
                 }
@@ -52,7 +53,8 @@ namespace ChatApp.Application.UseCases{
             }
             catch(Exception ex){
                 return new APIResponse<long>{
-                    Code = 0,
+                    Code = -99,
+                    Data = 0,
                     Message = "Send message failed: " + ex.Message,
                 };
             }

@@ -41,11 +41,29 @@ namespace ChatApp.Presentation.Hubs
                 {
                     ChatID = chatId,
                     Content = content,
-                    MessageType = messageType
+                    MessageType = messageType,
                 };
 
-                var message = await _mediator.Send(command);
+                var result = await _mediator.Send(command);
+
+                var message = new Message
+                {
+                    ID = result.Data,
+                    ChatID = chatId,
+                    SenderID = _userSession.Data.UserID,
+                    Content = content,
+                    MessageType = messageType,
+                    IsDeleted = false,
+                    IsEdited = false,
+                    CreatedAt = DateTime.UtcNow,
+                    EditedAt = null,
+                    DeletedAt = null,
+                    SenderName = $"{_userSession.Data.FirstName} {_userSession.Data.LastName}",
+                    SenderAvatar = _userSession.Data.Avatar
+                };
+
                 await Clients.Group($"Chat_{chatId}").SendAsync("ReceiveMessage", message);
+
                 _logger.LogInformation($"Message sent to chat {chatId} by user {_userSession.Data.UserID}");
             }
             catch (Exception ex)

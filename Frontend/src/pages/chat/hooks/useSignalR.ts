@@ -5,16 +5,18 @@ import {
   LogLevel,
 } from "@microsoft/signalr";
 import { useEffect, useState } from "react";
+import { HOST_CHAT_API } from "../../../config-global";
 
 export interface ISocketOnEvent {
   methodName: string;
   newMethod: (...args: any[]) => void;
 }
 
-function useSignalR(url: string, events?: ISocketOnEvent[]) {
+function useSignalR() {
   const [state, setHubState] = useState<HubConnectionState>(
     HubConnectionState.Connecting
   );
+
   const [hubConnection, setHubConnection] = useState<HubConnection>();
 
   useEffect(() => {
@@ -23,17 +25,13 @@ function useSignalR(url: string, events?: ISocketOnEvent[]) {
         const accessToken = localStorage.getItem("accessToken");
 
         const hub = new HubConnectionBuilder()
-          .withUrl(url, {
+          .withUrl(`${HOST_CHAT_API}/chatHub`, {
             withCredentials: false,
             accessTokenFactory: () => accessToken!,
           })
           .withAutomaticReconnect()
           .configureLogging(LogLevel.None)
           .build();
-
-        events?.forEach((e, i) => {
-          hub.on(e.methodName, e.newMethod);
-        });
 
         hub.onclose(() => {
           setHubState(HubConnectionState.Disconnected);
@@ -70,7 +68,7 @@ function useSignalR(url: string, events?: ISocketOnEvent[]) {
         hubConnection.stop();
       }
     };
-  }, [url, hubConnection]);
+  }, [hubConnection]);
 
   return { hubState: state, hubConnection };
 }
