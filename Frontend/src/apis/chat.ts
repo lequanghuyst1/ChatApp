@@ -2,8 +2,7 @@ import useSWR, { mutate } from "swr";
 import { useMemo } from "react";
 import axiosInstance, { APIResponse } from "../utils/axios";
 import { IChat } from "../types/chat";
-import { fetcher } from "../utils/axios";
-import { endpoints } from "../utils/axios";
+import { fetcher, endpoints } from "../utils/axios";
 
 const URL = endpoints.chat;
 

@@ -5,12 +5,14 @@ import {
   useEffect,
   useMemo,
 } from "react";
-import { IUserProfile } from "../../types/profile";
-import { AuthStateType, JWTContextType } from "./type";
-import { isValidToken, jwtDecode, setRefreshToken, setSession } from "./utils";
-import { ILoginRequest, IRegisterRequest } from "../../types/account";
-import { loginApi, registerApi } from "../../apis/account";
 import axios from "axios";
+import { isValidToken, jwtDecode, setRefreshToken, setSession } from "./utils";
+import { AuthStateType, JWTContextType } from "./type";
+import { IUserProfile } from "../../types/profile";
+import { loginApi, registerApi } from "../../apis/account";
+import { ILoginRequest, IRegisterRequest } from "../../types/account";
+import { paths } from "../../routes/paths";
+import { useRouter } from "../../routes/hooks";
 
 enum Types {
   INITIAL = "INITIAL",
@@ -58,13 +60,13 @@ const initialState: AuthStateType = {
 const reducer = (state: AuthStateType, action: AuthAction) => {
   switch (action.type) {
     case Types.INITIAL:
-      return { ...state, loading: false };
+      return { ...state, user: action.payload.user, loading: false };
     case Types.LOGIN:
-      return { ...state, user: action.payload.user, loading: false };
+      return { ...state, user: action.payload.user };
     case Types.REGISTER:
-      return { ...state, user: action.payload.user, loading: false };
+      return { ...state, user: action.payload.user};
     case Types.LOGOUT:
-      return { ...state, user: null, loading: false };
+      return { ...state, user: null };
     default:
       return state;
   }
@@ -77,7 +79,7 @@ const STORAGE_KEY = "accessToken";
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  console.log(state);
+  const router = useRouter();
 
   const toCamelCase = useCallback((o: any): any => {
     if (Array.isArray(o)) {
@@ -141,7 +143,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           payload: {
             user: {
               ...profile,
-              accessToken,
             },
           },
         });
@@ -170,12 +171,18 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = useCallback(async (payload: ILoginRequest) => {
     try {
-      const { data } = await loginApi(payload);
+      const { data, code, message } = await loginApi(payload);
+
+      if (code !== 1) {
+        throw new Error(message);
+      }
 
       const { accessToken, refreshToken, profile } = data;
 
       setSession(accessToken);
       setRefreshToken(refreshToken);
+
+      router.replace(paths.chat.root);
 
       dispatch({
         type: Types.LOGIN,

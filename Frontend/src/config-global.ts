@@ -5,5 +5,5 @@
  *
  * @type {string}
  */
-export const HOST_CHAT_API = "http://localhost:5000";
+export const HOST_CHAT_API = "https://localhost:7015";
 // export const HOST_CHAT_API = process.env.REACT_APP_HOST_CHAT_API;

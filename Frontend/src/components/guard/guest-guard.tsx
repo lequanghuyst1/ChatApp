@@ -1,11 +1,10 @@
 import { useEffect, useCallback } from 'react';
-
 import { paths } from '../../routes/paths';
+import { useAuthContext } from '../../stores/auth';
 import { useRouter, useSearchParams } from '../../routes/hooks';
 
 import { LoadingScreen } from '../loading-screen';
 
-import { useAuthContext } from '../../stores/auth';
 
 // ----------------------------------------------------------------------
 

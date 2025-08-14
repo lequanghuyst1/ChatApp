@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { paths } from "../../routes/paths";
 import { useAuthContext } from "../../stores/auth";
-import { LoadingScreen } from "../loading-screen";
 import { useRouter } from "../../routes/hooks";
+import { LoadingScreen } from "../loading-screen";
 
 // ----------------------------------------------------------------------
 

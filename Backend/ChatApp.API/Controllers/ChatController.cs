@@ -3,13 +3,14 @@ using ChatApp.Application.Model;
 using ChatApp.Application.UseCases.Chat.Commands;
 using ChatApp.Application.UseCases.Chat.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
-    [ApiController]
     public class ChatController : BaseController
     {
         public ChatController(IMediator mediator) : base(mediator)

@@ -4,8 +4,8 @@ import { paths } from "../paths";
 import { SplashScreen } from "../../components/loading-screen";
 import { AuthGuard } from "../../components/guard";
 
-const JwtLoginPage = lazy(
-  () => import("../../pages/auth/views/jwt-login-view")
+const ChatView = lazy(
+  () => import("../../pages/chat/views/chat-view")
 );
 
 export const mainRoutes = [
@@ -20,7 +20,7 @@ export const mainRoutes = [
     children: [
       {
         path: paths.dashboard.root,
-        element: <JwtLoginPage />,
+        element: <ChatView />,
       },
     ],
   },

@@ -19,7 +19,11 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+});
+
 
 // ??ng k� c?u h�nh JwtConfig
 builder.Services.AddSingleton<JwtConfig>();
@@ -27,10 +31,20 @@ builder.Services.AddSingleton<JwtConfig>();
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(AssemblyReference).Assembly));
 
+var mapperConfig = new MapperConfiguration(mc =>
+{
+    mc.AddProfile(new AutoMapperProfile());
+});
+
+IMapper mapper = mapperConfig.CreateMapper();
+
+builder.Services.AddSingleton(mapper);
+
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
 ApplicationServiceRegistration.AddApplicationServices(builder.Services);
 InfrastructureServiceRegistration.AddInfrastructureServices(builder.Services);
+
 
 builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, o =>
 {

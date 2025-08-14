@@ -11,6 +11,7 @@ const axiosInstance = axios.create({
   baseURL: HOST_CHAT_API,
   headers: {
     "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
   },
 });
 

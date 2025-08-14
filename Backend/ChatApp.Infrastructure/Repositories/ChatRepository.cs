@@ -87,7 +87,7 @@ namespace ChatApp.Infrastructure.Repositories
         {
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@UserID", userId);
-            var result = await GetListSP<Chat>("[dbo].[SP_Chat_GetListByUser]", parameters);
+            var result = await GetListSP<Chat>("[dbo].[SP_Chat_GetListByUserID]", parameters);
             return result;
         }
     }

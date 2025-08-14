@@ -1,14 +1,12 @@
-import { Box, TextField } from "@mui/material";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useAuthContext } from "../../stores/auth";
+import { LoadingButton } from "@mui/lab";
+import { ILoginRequest } from "../../types/account";
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
-}
-
-interface LoginFormInputs {
-  username: string;
-  password: string;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
@@ -17,17 +15,33 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormInputs>();
+  } = useForm<ILoginRequest>();
 
-  const onSubmit = (data: LoginFormInputs) => {
-    console.log("Login:", data);
+  const { login } = useAuthContext();
+
+  const [loading, setLoading] = React.useState(false);
+  const [messageError, setMessageError] = React.useState("");
+
+  const onSubmit = async (data: ILoginRequest) => {
+    try {
+      setLoading(true);
+      console.log("Login:", data);
+      await login(data);
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      setMessageError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Box>
-      <h2>Login</h2>
+    <Box sx={{ width: "100%" }}>
+      <Typography sx={{ mb: 2, textAlign: "center" }} variant="h5">
+        Login
+      </Typography>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Box>
+        <Stack spacing={2}>
           <Controller
             name="username"
             control={control}
@@ -38,13 +52,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
               <TextField
                 {...field}
                 label="Username"
+                fullWidth
                 error={!!errors.username}
                 helperText={errors.username?.message}
+                sx={{
+                  borderRadius: 1,
+                }}
               />
             )}
           />
-        </Box>
-        <Box>
           <Controller
             name="password"
             control={control}
@@ -54,20 +70,38 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
                 {...field}
                 label="Password"
                 type="password"
+                fullWidth
                 error={!!errors.password}
                 helperText={errors.password?.message}
+                sx={{
+                  borderRadius: 2,
+                }}
               />
             )}
           />
-        </Box>
-        <button type="submit">Login</button>
+          <LoadingButton
+            loading={loading}
+            color="primary"
+            variant="contained"
+            type="submit"
+          >
+            Login
+          </LoadingButton>
+        </Stack>
       </form>
-      <p>
-        Don't have an account?{" "}
-        <button type="button" onClick={onSwitchToRegister}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mt: 2,
+        }}
+      >
+        <Typography variant="body2">Don't have an account?</Typography>
+        <Button onClick={onSwitchToRegister} variant="outlined" sx={{ mt: 0 }}>
           Register
-        </button>
-      </p>
+        </Button>
+      </Box>
     </Box>
   );
 };

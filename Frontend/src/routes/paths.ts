@@ -4,6 +4,7 @@ export const paths = {
     register: "/register",
   },
   chat: {
+    root: "/chat",
     detail: "/chat/:id",
   },
   dashboard: {

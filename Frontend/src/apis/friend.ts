@@ -1,7 +1,7 @@
-import axiosInstance, { endpoints, fetcher } from "../utils/axios";
-import { IFriend } from "../types/friend";
 import useSWR, { mutate } from "swr";
 import { useMemo } from "react";
+import axiosInstance, { endpoints, fetcher } from "../utils/axios";
+import { IFriend } from "../types/friend";
 import { APIResponse } from "../utils/axios";
 
 const URL = endpoints.friend;
