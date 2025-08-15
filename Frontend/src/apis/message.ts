@@ -14,11 +14,11 @@ const options = {
   revalidate: 0,
 };
 
-export const useListMessageByChat = (chatID: number) => {
+export const useGetListMessageByChat = (chatID: number, page: number, pageSize: number) => {
   try {
     const { data, error, isLoading, isValidating } = useSWR<
       APIResponse<IMessage[]>
-    >(`${URL.getListByChat}/${chatID}`, fetcher, options);
+    >(`${URL.getListByChat}?chatID=${chatID}&page=${page}&pageSize=${pageSize}`, fetcher, options);
 
     const memoizedValue = useMemo(() => {
       const messages: IMessage[] = data?.data || [];

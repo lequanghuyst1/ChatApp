@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.API.Controllers
 {
+    [Authorize]
+
     public class ChatController : BaseController
     {
         public ChatController(IMediator mediator) : base(mediator)
@@ -20,6 +22,13 @@ namespace ChatApp.API.Controllers
         public async Task<ActionResult<APIResponse<IEnumerable<ChatDTO>>>> GetChatList()
         {
             var result = await _mediator.Send(new GetChatsByUserQuery());
+            return Ok(result);
+        }
+
+        [HttpGet("get-by-id")]
+        public async Task<ActionResult<APIResponse<ChatDTO>>> GetChatById(long id)
+        {
+            var result = await _mediator.Send(new GetChatByIdQuery(id));
             return Ok(result);
         }
 

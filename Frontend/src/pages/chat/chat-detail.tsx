@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { HubConnectionState } from "@microsoft/signalr";
-import { useGetChatDetail } from "../../apis/chat";
+import { useGetChatDetail, useGetListChat } from "../../apis/chat";
 import { IMessage } from "../../types/message";
 import MessageList from "./message-list";
 import useSignalR, { ISocketOnEvent } from "./hooks/useSignalR";
+import { useGetListMessageByChat } from "../../apis/message";
 
 type Props = {
   chatID: number;
@@ -12,6 +13,13 @@ type Props = {
 function ChatDetail({ chatID }: Props) {
   const { chat, chatLoading, chatError, chatValidating } =
     useGetChatDetail(chatID);
+
+  const {
+    messages: listMessages,
+    messagesLoading,
+    messagesError,
+    messagesValidating,
+  } = useGetListMessageByChat(chatID, 1, 20);
 
   const [messages, setMessages] = useState<IMessage[]>([]);
 
@@ -32,10 +40,10 @@ function ChatDetail({ chatID }: Props) {
   );
 
   useEffect(() => {
-    if (chat) {
-      setMessages(chat.messages);
+    if (listMessages) {
+      setMessages(listMessages);
     }
-  }, [chat]);
+  }, [listMessages]);
 
   useEffect(() => {
     if (hubState === HubConnectionState.Connected) {

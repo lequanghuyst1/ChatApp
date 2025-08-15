@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BaseController : ControllerBase

@@ -37,7 +37,7 @@ export const useListFriend = () => {
   }
 };
 
-export const useListFriendRequest = () => {
+export const useGetListFriendRequest = () => {
   try {
     const { data, error, isLoading, isValidating } = useSWR<
       APIResponse<IFriend[]>

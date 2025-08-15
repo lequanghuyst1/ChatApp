@@ -18,7 +18,7 @@ namespace ChatApp.Application.AutoMapper
             CreateMap<ChatDTO, Chat>().ReverseMap();
             CreateMap<ReactionDTO, Reaction>().ReverseMap();
             CreateMap<ChatParticipantDTO, ChatParticipant>().ReverseMap();
-            CreateMap<FriendDTO, FriendDTO>().ReverseMap();
+            CreateMap<UserFriend, FriendDTO>().ReverseMap();
             CreateMap<UserProfileDTO, UserProfile>().ReverseMap();
         }
     }

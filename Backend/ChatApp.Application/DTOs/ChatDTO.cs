@@ -16,6 +16,8 @@ namespace ChatApp.Application.DTOs
         public string UpdatedByName { get; set; }
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
-        public IEnumerable<long> ParticipantIds { get; set; } = new List<long>();
+        public IEnumerable<ChatParticipantDTO> Participants { get; set; } = new List<ChatParticipantDTO>();
+        public IEnumerable<MessageDTO> Messages { get; set; } = new List<MessageDTO>();
+
     }
 }

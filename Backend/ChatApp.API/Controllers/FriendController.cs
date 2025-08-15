@@ -3,15 +3,14 @@ using ChatApp.Application.Model;
 using ChatApp.Application.UseCases.Friend.Commands;
 using ChatApp.Application.UseCases.Friend.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 
-/// <summary>
-/// Controller quản lý các chức năng liên quan đến bạn bè: gửi, chấp nhận, từ chối, xóa lời mời kết bạn và lấy danh sách bạn bè/lời mời.
-/// </summary>
 namespace ChatApp.API.Controllers
 {
+    [Authorize]
     public class FriendController : BaseController
     {
         /// <summary>

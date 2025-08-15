@@ -29,7 +29,7 @@ namespace ChatApp.Application.UseCases.Friend.Queries
             {
                 return new APIResponse<IEnumerable<FriendDTO>>
                 {
-                    Code = 0,
+                    Code = -1,
                     Message = "User is not authenticated",
                 };
             }

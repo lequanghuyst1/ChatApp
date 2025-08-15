@@ -50,7 +50,7 @@ namespace ChatApp.Infrastructure.Repositories
         {
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@UserID", userId);
-            return await GetListSP<UserFriend>("[dbo].[SP_Friend_GetListFriendRequest]", parameters);
+            return await GetListSP<UserFriend>("[dbo].[SP_Friend_GetListRequest]", parameters);
         }
 
         public async Task<int> DeleteAsync(long userId, long friendId, string username)

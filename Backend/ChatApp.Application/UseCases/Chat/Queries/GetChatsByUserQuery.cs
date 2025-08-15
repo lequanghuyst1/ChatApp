@@ -37,9 +37,16 @@ namespace ChatApp.Application.UseCases.Chat.Queries{
 
                 var result = await _chatRepository.GetListByUserAsync(userSession.Data.UserID);
 
-                var participantIds = await _chatParticipantRepository.GetListByChatIdAsync(userSession.Data.UserID);
-
                 var chatDTOs = _mapper.Map<IEnumerable<ChatDTO>>(result);
+
+                foreach (var chat in chatDTOs)
+                {
+                    var participants = await _chatParticipantRepository.GetListByChatIdAsync(chat.ID);
+
+                    var participantsDTOs = _mapper.Map<IEnumerable<ChatParticipantDTO>>(participants);
+
+                    chat.Participants = participantsDTOs;
+                }
                 
                 return new APIResponse<IEnumerable<ChatDTO>>{
                     Code = 1,

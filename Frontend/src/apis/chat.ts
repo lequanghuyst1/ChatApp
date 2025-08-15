@@ -39,7 +39,7 @@ export const useGetListChat = () => {
 
 export const useGetChatDetail = (chatID: number) => {
   try {
-    const URL_FETCH = `${URL.getChatById}/${chatID}`;
+    const URL_FETCH = `${URL.getChatById}?id=${chatID}`;
 
     const { data, error, isLoading, isValidating } = useSWR(
       URL_FETCH,

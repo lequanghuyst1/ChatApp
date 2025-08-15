@@ -15,7 +15,6 @@ namespace ChatApp.API.Controllers
     [Authorize]
     public class ProfileController : BaseController
     {
-
         public ProfileController(IMediator mediator) : base(mediator)
         {
         }

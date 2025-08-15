@@ -5,9 +5,9 @@ using MediatR;
 
 namespace ChatApp.Application.UseCases.Friend.Commands
 {
-    public record AddFriendCommand(long FriendID) : IRequest<APIResponse>;
+    public record AddFriendCommand(long FriendID) : IRequest<APIResponse<long>>;
 
-    public class AddFriendCommandHandler : IRequestHandler<AddFriendCommand, APIResponse>
+    public class AddFriendCommandHandler : IRequestHandler<AddFriendCommand, APIResponse<long>>
     {
         private readonly IFriendRepository _friendRepository;
         private readonly IIdentityService _identityService;
@@ -18,7 +18,7 @@ namespace ChatApp.Application.UseCases.Friend.Commands
             _identityService = identityService;
         }
         
-        public async Task<APIResponse> Handle(AddFriendCommand request, CancellationToken cancellationToken)
+        public async Task<APIResponse<long>> Handle(AddFriendCommand request, CancellationToken cancellationToken)
         {
             try
             {
@@ -26,7 +26,7 @@ namespace ChatApp.Application.UseCases.Friend.Commands
 
                 if (userSession == null || userSession.Data == null)
                 {
-                    return new APIResponse{
+                    return new APIResponse<long>{
                         Code = 0,
                         Message = "User is not authenticated",
                     };
@@ -34,15 +34,23 @@ namespace ChatApp.Application.UseCases.Friend.Commands
 
                 var result = await _friendRepository.AddFriendRequestAsync(userSession.Data.UserID, request.FriendID);
 
-                return new APIResponse{
+                if (result.status != 1)
+                {
+                    return new APIResponse<long>{
+                        Code = result.status,
+                        Message = "Friend request failed" ,
+                    };
+                }
+                return new APIResponse<long>{
                     Code = result.status,
+                    Data = result.newId,
                     Message = "Friend request sent",
                 };
             }
             catch (Exception ex)
             {
-                return new APIResponse{
-                    Code = 0,
+                return new APIResponse<long>{
+                    Code = -99,
                     Message = "Add friend failed: " + ex.Message,
                 };
             }

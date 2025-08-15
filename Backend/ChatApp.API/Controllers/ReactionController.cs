@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ChatApp.Application.DTOs;
+﻿using ChatApp.Application.DTOs;
 using ChatApp.Application.Model;
-using MediatR;
 using ChatApp.Application.UseCases;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.API.Controllers
 {
+    [Authorize]
     public class ReactionController : BaseController
     {
         public ReactionController(IMediator mediator) : base(mediator)
