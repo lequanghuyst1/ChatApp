@@ -28,6 +28,7 @@ function ChatView() {
         <Grid item xs={12} md={4} lg={4} xl={2.5}>
           <ChatList
             chats={chats}
+            selectedChatID={selectedChat?.id || 0}
             chatsLoading={chatsLoading}
             chatsError={chatsError}
             onChatSelect={setSelectedChat}

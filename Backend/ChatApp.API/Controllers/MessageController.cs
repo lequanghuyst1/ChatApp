@@ -12,7 +12,7 @@ namespace ChatApp.API.Controllers
     [Authorize]
     public class MessageController : BaseController
     {
-        public MessageController(Mediator mediator) : base(mediator)
+        public MessageController(IMediator mediator) : base(mediator)
         {
         }
 

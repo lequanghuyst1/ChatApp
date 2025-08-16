@@ -64,7 +64,7 @@ namespace ChatApp.Infrastructure.Repositories
             parameters.Add("@ChatID", chatId);
             parameters.Add("@Page", page);
             parameters.Add("@PageSize", pageSize);
-            return await GetListSP<Message>("[dbo].[SP_Message_GetByChatId]", parameters);
+            return await GetListSP<Message>("[dbo].[SP_Message_GetListByChatID]", parameters);
         }
     }
 }

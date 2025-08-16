@@ -52,7 +52,7 @@ namespace ChatApp.Infrastructure.Repositories
         {
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@MessageID", messageId);
-            var result = await GetListSP<Reaction>("[dbo].[SP_Reaction_GetByMessageId]", parameters);
+            var result = await GetListSP<Reaction>("[dbo].[SP_Reaction_GetListByMessageID]", parameters);
             return result;
         }
     }

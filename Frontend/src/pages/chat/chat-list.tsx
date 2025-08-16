@@ -1,14 +1,23 @@
+import { useAuthContext } from "../../stores/auth";
 import { IChat } from "../../types/chat";
 import { Avatar, Card, Stack, Typography } from "@mui/material";
 
 type Props = {
   chats: IChat[];
+  selectedChatID: number;
   chatsLoading: boolean;
   chatsError: boolean;
   onChatSelect: (chat: IChat) => void;
 };
 
-function ChatList({ chats, chatsLoading, chatsError, onChatSelect }: Props) {
+function ChatList({
+  chats,
+  selectedChatID,
+  chatsLoading,
+  chatsError,
+  onChatSelect,
+}: Props) {
+  const { user } = useAuthContext();
   if (chatsLoading) {
     return <div>Loading...</div>;
   }
@@ -18,7 +27,14 @@ function ChatList({ chats, chatsLoading, chatsError, onChatSelect }: Props) {
   }
 
   return (
-    <Card sx={{ backgroundColor: "#1f1f1f", height: "100%", borderRadius: 1 }}>
+    <Card
+      sx={{
+        backgroundColor: "#1f1f1f",
+        height: "100%",
+        borderRadius: 1,
+        px: 1,
+      }}
+    >
       <Stack>
         {chats.map((chat) => (
           <Stack
@@ -34,11 +50,20 @@ function ChatList({ chats, chatsLoading, chatsError, onChatSelect }: Props) {
                 backgroundColor: "#2f2f2f",
                 borderRadius: 1,
               },
+              ...(chat.id === selectedChatID && {
+                backgroundColor: "#2f2f2f",
+                borderRadius: 1,
+              }),
             }}
             onClick={() => onChatSelect(chat)}
           >
             <Avatar />
-            <Typography color="white">{chat.createdByName}</Typography>
+            <Typography color="white">
+              {
+                chat.participants.find((p) => p.userID !== user?.userID)
+                  ?.fullName
+              }
+            </Typography>
           </Stack>
         ))}
       </Stack>

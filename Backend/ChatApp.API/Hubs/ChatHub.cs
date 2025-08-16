@@ -95,27 +95,21 @@ namespace ChatApp.Presentation.Hubs
             }
         }
 
-        // Tham gia chat
-        // public async Task JoinChat(long chatId)
-        // {
-        //     try
-        //     {
-        //         var userSession = _identityService.GetUser<UserProfile>();
-
-        //         var chatParticipant = await _chatParticipantRepository.GetByChatIdAndUserIdAsync(chatId, userSession.Data.UserID);
-        //         if (chatParticipant == null)
-        //             throw new HubException("User is not a participant of this chat");
-
-        //         await Groups.AddToGroupAsync(Context.ConnectionId, $"Chat_{chatId}");
-        //         await Clients.Group($"Chat_{chatId}").SendAsync("UserJoined", userSession.Data.UserID);
-        //         _logger.LogInformation($"User {userSession.Data.UserID} joined chat {chatId}");
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex, "Error joining chat");
-        //         throw new HubException($"Failed to join chat: {ex.Message}");
-        //     }
-        // }
+        public async Task JoinChat(long chatId)
+        {
+            try
+            {
+                var userSession = _identityService.GetUser<UserProfile>();
+                await Groups.AddToGroupAsync(Context.ConnectionId, $"Chat_{chatId}");
+                await Clients.Group($"Chat_{chatId}").SendAsync("UserJoined", userSession.Data.UserID);
+                _logger.LogInformation($"User {userSession.Data.UserID} joined chat {chatId}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error joining chat");
+                throw new HubException($"Failed to join chat: {ex.Message}");
+            }
+        }
 
         // Rời chat
         public async Task LeaveChat(long chatId)
