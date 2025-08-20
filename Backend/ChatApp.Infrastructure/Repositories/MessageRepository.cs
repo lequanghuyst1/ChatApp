@@ -58,13 +58,16 @@ namespace ChatApp.Infrastructure.Repositories
             return await GetInstanceSP<Message>("[dbo].[SP_Message_GetById]", parameters);
         }
 
-        public async Task<IEnumerable<Message>> GetMessagesByChatIdAsync(long chatId, int page, int pageSize)
+        public async Task<(int totalRec, IEnumerable<Message> messages)> GetMessagesByChatIdAsync(long chatId, int page, int pageSize)
         {
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("@ChatID", chatId);
             parameters.Add("@Page", page);
             parameters.Add("@PageSize", pageSize);
-            return await GetListSP<Message>("[dbo].[SP_Message_GetListByChatID]", parameters);
+            parameters.Add("@TotalRec", dbType: System.Data.DbType.Int32, direction: System.Data.ParameterDirection.Output);
+            var messages = await GetListSP<Message>("[dbo].[SP_Message_GetListByChatID]", parameters);
+            var totalRec = parameters.Get<int>("@TotalRec");
+            return (totalRec, messages);
         }
     }
 }

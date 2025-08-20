@@ -39,7 +39,7 @@ namespace ChatApp.API.Controllers
         }
 
         [HttpGet("get-list-by-chat")]
-        public async Task<ActionResult<APIResponse<IEnumerable<MessageDTO>>>> GetMessagesByChat(long chatId, int page = 1, int pageSize = 20)
+        public async Task<ActionResult<APIResponse<GetMessagesByChatResponse>>> GetMessagesByChat(long chatId, int page = 1, int pageSize = 20)
         {
             var query = new GetMessagesByChatQuery { ChatID = chatId, Page = page, PageSize = pageSize };
             var result = await _mediator.Send(query);

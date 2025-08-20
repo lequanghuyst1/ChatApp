@@ -1,7 +1,7 @@
 import { KeyboardEvent, useCallback, useEffect, useState } from "react";
 import { HubConnectionState } from "@microsoft/signalr";
 import { useGetChatDetail, useGetListChat } from "../../apis/chat";
-import { IMessage } from "../../types/message";
+import { IMessage, ISearchMessage } from "../../types/message";
 import MessageList from "./message-list";
 import useSignalR, { ISocketOnEvent } from "./hooks/useSignalR";
 import { useGetListMessageByChat } from "../../apis/message";
@@ -29,12 +29,21 @@ function ChatDetail({ chatID }: Props) {
   const { chat, chatLoading, chatError, chatValidating } =
     useGetChatDetail(chatID);
 
+  const [filters, setFilters] = useState<ISearchMessage>({
+    chatID,
+    page: 1,
+    pageSize: 20,
+  });
+
+  const [hasMore, setHasMore] = useState(true);
+
   const {
     messages: listMessages,
     messagesLoading,
     messagesError,
     messagesValidating,
-  } = useGetListMessageByChat(chatID, 1, 20);
+    totalRec,
+  } = useGetListMessageByChat(filters);
 
   const [messages, setMessages] = useState<IMessage[]>([]);
 
@@ -56,13 +65,38 @@ function ChatDetail({ chatID }: Props) {
     [hubConnection]
   );
 
+  // Reset messages when chatID changes
+  useEffect(() => {
+    setMessages([]);
+    setFilters((prev) => ({
+      ...prev,
+      page: 1,
+      chatID,
+    }));
+    setHasMore(true);
+  }, [chatID]);
+
+  const loadMoreMessages = useCallback(() => {
+    if (messages.length >= totalRec) {
+      setHasMore(false);
+      return;
+    }
+    setFilters((prev) => ({
+      ...prev,
+      page: prev.page + 1,
+    }));
+  }, [messages.length, totalRec]);
+
+  // Merge new messages with existing ones
   useEffect(() => {
     if (listMessages) {
-      setMessages(listMessages);
+      if (filters.page === 1) {
+        setMessages(listMessages);
+      } else {
+        setMessages((prev) => [...prev, ...listMessages]);
+      }
     }
-  }, [listMessages]);
-
-  console.log(hubState);
+  }, [listMessages, filters.page]);
 
   useEffect(() => {
     if (hubState === HubConnectionState.Connected && chatID) {
@@ -119,8 +153,17 @@ function ChatDetail({ chatID }: Props) {
   }
 
   return (
-    <Card sx={{ backgroundColor: "#1f1f1f", height: "100%", borderRadius: 1 }}>
-      <Stack sx={{ flex: 1, height: "100%" }} justifyContent="space-between">
+    <Card
+      sx={{
+        backgroundColor: "#1f1f1f",
+        height: "calc(100vh - 32px)",
+        borderRadius: 1,
+      }}
+    >
+      <Stack
+        sx={{ flex: 1, height: "100%", pr: 1 }}
+        justifyContent="space-between"
+      >
         <Stack
           spacing={2}
           direction="row"
@@ -133,8 +176,36 @@ function ChatDetail({ chatID }: Props) {
           </Typography>
         </Stack>
 
-        <Box sx={{ flex: 1, overflowY: "auto", mb: 2 }}>
-          <MessageList messages={messages} />
+        <Box
+          sx={{
+            flex: 1,
+            height: "calc(100% - 64px)",
+            overflowY: "auto", // hoặc "scroll"
+            mb: 2,
+            // 👇 custom scrollbar
+            "&::-webkit-scrollbar": {
+              width: "10px", // độ rộng scrollbar
+            },
+            "&::-webkit-scrollbar-track": {
+              background: "transparent", // nền track trong suốt
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "rgba(255,255,255,0.3)", // màu thanh kéo
+              borderRadius: "10px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: "rgba(255,255,255,0.5)",
+            },
+          }}
+        >
+          <MessageList
+            messages={messages}
+            totalRec={totalRec}
+            isLoading={messagesLoading}
+            error={messagesError}
+            onLoadMore={loadMoreMessages}
+            hasMore={hasMore && messages.length < totalRec}
+          />
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", padding: "12px 0" }}>

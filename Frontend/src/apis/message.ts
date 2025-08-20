@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import { useMemo } from "react";
-import { IMessage } from "../types/message";
+import { IMessage, ISearchMessage } from "../types/message";
 import axiosInstance, { APIResponse, endpoints, fetcher } from "../utils/axios";
 
 const URL = endpoints.message;
@@ -14,16 +14,22 @@ const options = {
   revalidate: 0,
 };
 
-export const useGetListMessageByChat = (chatID: number, page: number, pageSize: number) => {
+export const useGetListMessageByChat = (params: ISearchMessage) => {
   try {
-    const { data, error, isLoading, isValidating } = useSWR<
-      APIResponse<IMessage[]>
-    >(`${URL.getListByChat}?chatID=${chatID}&page=${page}&pageSize=${pageSize}`, fetcher, options);
+    const URL_FETCH = [URL.getListByChat, { params }];
+
+    const { data, error, isLoading, isValidating } = useSWR(
+      URL_FETCH,
+      fetcher,
+      options
+    );
 
     const memoizedValue = useMemo(() => {
-      const messages: IMessage[] = data?.data || [];
+      const messages: IMessage[] = data?.data.messages || [];
+      const totalRec = data?.data.totalRec || 0;
       return {
         messages,
+        totalRec,
         messagesLoading: isLoading,
         messagesError: error,
         messagesValidating: isValidating,
@@ -39,10 +45,10 @@ export const useGetListMessageByChat = (chatID: number, page: number, pageSize: 
 // Edit a message by ID
 export const editMessage = async (messageId: number, content: string) => {
   try {
-    const response = await axiosInstance.post<APIResponse<null>>(
-      URL.edit,
-      { MessageID: messageId, Content: content }
-    );
+    const response = await axiosInstance.post<APIResponse<null>>(URL.edit, {
+      MessageID: messageId,
+      Content: content,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -52,13 +58,11 @@ export const editMessage = async (messageId: number, content: string) => {
 // Delete a message by ID
 export const deleteMessage = async (messageId: number) => {
   try {
-    const response = await axiosInstance.post<APIResponse<null>>(
-      URL.delete,
-      { MessageID: messageId }
-    );
+    const response = await axiosInstance.post<APIResponse<null>>(URL.delete, {
+      MessageID: messageId,
+    });
     return response.data;
   } catch (error) {
     throw error;
   }
 };
-

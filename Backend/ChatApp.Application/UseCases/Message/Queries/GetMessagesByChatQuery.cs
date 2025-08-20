@@ -6,13 +6,19 @@ using ChatApp.Application.DTOs;
 using AutoMapper;
 
 namespace ChatApp.Application.UseCases{
-    public class GetMessagesByChatQuery : IRequest<APIResponse<IEnumerable<MessageDTO>>>{
+
+    public class GetMessagesByChatResponse{
+        public IEnumerable<MessageDTO> Messages { get; set; }
+        public int TotalRec { get; set; }
+    }
+
+    public class GetMessagesByChatQuery : IRequest<APIResponse<GetMessagesByChatResponse>>{
         public long ChatID { get; set; }
         public int Page { get; set; }
         public int PageSize { get; set; }
     }
 
-    public class GetMessagesByChatQueryHandler : IRequestHandler<GetMessagesByChatQuery, APIResponse<IEnumerable<MessageDTO>>>{
+    public class GetMessagesByChatQueryHandler : IRequestHandler<GetMessagesByChatQuery, APIResponse<GetMessagesByChatResponse>>{
         private readonly IMessageRepository _messageRepository;
         private readonly IReactionRepository _reactionRepository;
         private readonly IMapper _mapper;
@@ -23,12 +29,12 @@ namespace ChatApp.Application.UseCases{
             _mapper = mapper;
         }
 
-        public async Task<APIResponse<IEnumerable<MessageDTO>>> Handle(GetMessagesByChatQuery request, CancellationToken cancellationToken){
+        public async Task<APIResponse<GetMessagesByChatResponse>> Handle(GetMessagesByChatQuery request, CancellationToken cancellationToken){
             try{
                 var result = await _messageRepository.GetMessagesByChatIdAsync(request.ChatID, request.Page, request.PageSize);
 
 
-                var messageDTOs = _mapper.Map<IEnumerable<MessageDTO>>(result);
+                var messageDTOs = _mapper.Map<IEnumerable<MessageDTO>>(result.messages);
 
                 foreach(var messageDTO in messageDTOs){
                     var reactions = await _reactionRepository.GetByMessageIdAsync(messageDTO.ID);
@@ -36,15 +42,15 @@ namespace ChatApp.Application.UseCases{
                     messageDTO.Reactions = reactions.Select(r => _mapper.Map<ReactionDTO>(r));
                 }
 
-                return new APIResponse<IEnumerable<MessageDTO>>{
+                return new APIResponse<GetMessagesByChatResponse>{
                     Code = 1,
-                    Data = messageDTOs,
+                    Data = new GetMessagesByChatResponse{Messages = messageDTOs, TotalRec = result.totalRec},
                     Message = "Get messages by chat success",
                 };
             }
 
             catch(Exception ex){
-                return new APIResponse<IEnumerable<MessageDTO>>{
+                return new APIResponse<GetMessagesByChatResponse>{
                     Code = 0,
                     Message = "Get messages by chat failed: " + ex.Message,
                 };
