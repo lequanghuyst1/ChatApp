@@ -1,8 +1,8 @@
-import useSWR, { mutate } from "swr";
-import { useMemo } from "react";
-import axiosInstance, { APIResponse } from "../utils/axios";
-import { IChat } from "../types/chat";
-import { fetcher, endpoints } from "../utils/axios";
+import useSWR, { mutate } from 'swr';
+import { useMemo } from 'react';
+import axiosInstance, { APIResponse } from '@/utils/axios';
+import { IChat } from '@/types/chat';
+import { fetcher, endpoints } from '@/utils/axios';
 
 const URL = endpoints.chat;
 
@@ -17,9 +17,11 @@ const options = {
 
 export const useGetListChat = () => {
   try {
-    const { data, error, isLoading, isValidating } = useSWR<
-      APIResponse<IChat[]>
-    >(URL.getList, fetcher, options);
+    const { data, error, isLoading, isValidating } = useSWR<APIResponse<IChat[]>>(
+      URL.getList,
+      fetcher,
+      options
+    );
 
     const memoizedValue = useMemo(() => {
       const chats: IChat[] = data?.data || [];
@@ -41,11 +43,7 @@ export const useGetChatDetail = (chatID: number) => {
   try {
     const URL_FETCH = `${URL.getChatById}?id=${chatID}`;
 
-    const { data, error, isLoading, isValidating } = useSWR(
-      URL_FETCH,
-      fetcher,
-      options
-    );
+    const { data, error, isLoading, isValidating } = useSWR(URL_FETCH, fetcher, options);
 
     const memoizedValue = useMemo(() => {
       const chat: IChat = data?.data || {};
@@ -66,10 +64,9 @@ export const useGetChatDetail = (chatID: number) => {
 
 export const leaveChat = async (chatID: number) => {
   try {
-    const response = await axiosInstance.post<APIResponse<number>>(
-      `${URL.leaveChat}`,
-      { ChatID: chatID }
-    );
+    const response = await axiosInstance.post<APIResponse<number>>(`${URL.leaveChat}`, {
+      ChatID: chatID,
+    });
 
     const { data, code, message } = response.data;
 
@@ -77,9 +74,7 @@ export const leaveChat = async (chatID: number) => {
       mutate(
         `${URL.getList}`,
         (currentData: any) => {
-          const newData = currentData?.data?.filter(
-            (chat: any) => chat.chatID !== chatID
-          );
+          const newData = currentData?.data?.filter((chat: any) => chat.chatID !== chatID);
           return { ...currentData, data: newData };
         },
         false
@@ -94,10 +89,9 @@ export const leaveChat = async (chatID: number) => {
 
 export const deleteChat = async (chatID: number) => {
   try {
-    const response = await axiosInstance.post<APIResponse<number>>(
-      `${URL.deleteChat}`,
-      { ChatID: chatID }
-    );
+    const response = await axiosInstance.post<APIResponse<number>>(`${URL.deleteChat}`, {
+      ChatID: chatID,
+    });
 
     const { data, code, message } = response.data;
 
@@ -105,9 +99,7 @@ export const deleteChat = async (chatID: number) => {
       mutate(
         `${URL.getList}`,
         (currentData: any) => {
-          const newData = currentData?.data?.filter(
-            (chat: any) => chat.chatID !== chatID
-          );
+          const newData = currentData?.data?.filter((chat: any) => chat.chatID !== chatID);
           return { ...currentData, data: newData };
         },
         false

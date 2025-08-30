@@ -1,7 +1,7 @@
-import useSWR, { mutate } from "swr";
-import { useMemo } from "react";
-import { APIResponse, endpoints, fetcher } from "../utils/axios";
-import { IUserProfile } from "../types/profile";
+import useSWR from 'swr';
+import { useMemo } from 'react';
+import { APIResponse, endpoints, fetcher } from '../utils/axios';
+import { IUserProfile } from '../types/profile';
 
 const URL = endpoints.profile;
 
@@ -18,9 +18,11 @@ export const useGetListUser = (keyword: string) => {
   try {
     const URL_FETCH = `${URL.getUsers}?keyword=${keyword}`;
 
-    const { data, error, isLoading, isValidating } = useSWR<
-      APIResponse<IUserProfile[]>
-    >(URL_FETCH, fetcher, options);
+    const { data, error, isLoading, isValidating } = useSWR<APIResponse<IUserProfile[]>>(
+      URL_FETCH,
+      fetcher,
+      options
+    );
 
     const memoizedValue = useMemo(() => {
       const users: IUserProfile[] = data?.data || [];
@@ -34,7 +36,7 @@ export const useGetListUser = (keyword: string) => {
 
     return memoizedValue;
   } catch (error) {
-    console.error("Error fetching profile:", error);
+    console.error('Error fetching profile:', error);
     throw error;
   }
 };

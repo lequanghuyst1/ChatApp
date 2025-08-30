@@ -1,33 +1,37 @@
+﻿using Microsoft.Extensions.Caching.Memory;
+
 public class CacheRepository : ICacheRepository
 {
-       private readonly IDistributedCache _cache;
-       public CacheRepository(IDistributedCache cache)
-       {
-           _cache = cache;
-       }
-       public async Task<bool> SetCacheAsync<T>(string key, T value, TimeSpan? absoluteExpiration = null)
-       {
-            var options = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpiration = absoluteExpiration
-            };
-           await _cache.SetAsync(key, value, options);
-           return true;
-       }
+    private readonly IMemoryCache _cache;
 
-       public async Task<bool> RemoveCacheAsync(string key)
-       {
-           await _cache.RemoveAsync(key);
-           return true;
-       }
+    public CacheRepository(IMemoryCache cache)
+    {
+        _cache = cache;
+    }
 
-       public async Task<T?> GetCacheAsync<T>(string key)
-       {
-           return await _cache.GetAsync<T>(key);
-       }
-       
-       public async Task<bool> IsCacheExistAsync(string key)
-       {
-           return await _cache.ExistsAsync(key);
-       }
+    public bool SetCache<T>(string key, T value, TimeSpan? absoluteExpiration = null)
+    {
+        var options = new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = absoluteExpiration
+        };
+        _cache.Set(key, value, options);
+        return true; // Trả về true nếu set thành công (giả định)
+    }
+
+    public bool RemoveCache(string key)
+    {
+        _cache.Remove(key);
+        return true; // Trả về true nếu remove thành công (giả định)
+    }
+
+    public T? GetCache<T>(string key)
+    {
+        return _cache.Get<T>(key);
+    }
+
+    public bool IsCacheExist(string key)
+    {
+        return _cache.TryGetValue(key, out _); // Kiểm tra xem key có tồn tại không
+    }
 }

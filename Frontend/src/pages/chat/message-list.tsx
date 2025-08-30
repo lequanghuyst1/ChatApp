@@ -8,11 +8,11 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import { IMessage } from "../../types/message";
-import { useAuthContext } from "../../stores/auth";
 import React, { useRef, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import vi from "date-fns/locale/vi";
+import { IMessage } from "@/types/message";
+import { useAppSelector } from "@/stores/hook";
 
 type Props = {
   messages: IMessage[];
@@ -72,7 +72,7 @@ function MessageList({
   onLoadMore,
   hasMore,
 }: Props) {
-  const { user } = useAuthContext();
+  const { user } = useAppSelector((state) => state.auth);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const prevScrollHeight = useRef<number>();

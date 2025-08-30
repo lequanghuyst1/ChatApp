@@ -3,19 +3,14 @@ import {
   ILoginResponse,
   IRegisterRequest,
   IRegisterResponse,
-} from "../types/account";
-import axiosInstance, { APIResponse, endpoints } from "../utils/axios";
+} from '@/types/account';
+import axiosInstance, { APIResponse, endpoints } from '@/utils/axios';
 
 const URL = endpoints.auth;
 
-export const loginApi = async (
-  payload: ILoginRequest
-): Promise<APIResponse<ILoginResponse>> => {
+export const loginApi = async (payload: ILoginRequest): Promise<APIResponse<ILoginResponse>> => {
   try {
-    const response = await axiosInstance.post<APIResponse<ILoginResponse>>(
-      `${URL.login}`,
-      payload
-    );
+    const response = await axiosInstance.post<APIResponse<ILoginResponse>>(`${URL.login}`, payload);
 
     const { code, data, message } = response.data;
 

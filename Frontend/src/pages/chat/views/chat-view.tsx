@@ -1,20 +1,20 @@
 import { useState } from "react";
 import { Box, Grid } from "@mui/material";
-import { useGetListChat } from "../../../apis/chat";
+import { useGetListChat } from "@/apis/chat";
+import { useBoolean } from "@/hooks/use-boolean";
+import { IChat } from "@/types/chat";
 import ChatDetail from "../chat-detail";
 import ChatList from "../chat-list";
 import ChatToolbar from "../chat-toolbar";
 import useSignalR from "../hooks/useSignalR";
-import { useBoolean } from "../../../hooks/use-boolean";
 import AddFriendDialog from "../dialogs/add-friend-dialog";
-import { IChat } from "../../../types/chat";
 
 function ChatView() {
-  const { chats, chatsLoading, chatsError, chatsValidating } = useGetListChat();
+  const { chats, chatsLoading, chatsError } = useGetListChat();
 
   const [selectedChat, setSelectedChat] = useState<IChat | null>(null);
 
-  const { hubState, hubConnection } = useSignalR();
+  // const { hubState, hubConnection } = useSignalR();
 
   const openAddFriendDialog = useBoolean();
 

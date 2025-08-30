@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { ILoginRequest, IRegisterRequest } from '../../types/account';
-import { loginApi, registerApi } from '../../apis/account';
-import { IUserProfile } from '../../types/profile';
+import { ILoginRequest, IRegisterRequest } from '@/types/account';
+import { loginApi, registerApi } from '@/apis/account';
+import { IUserProfile } from '@/types/profile';
+import axiosInstance from '@/utils/axios';
 import { isValidToken, jwtDecode, setRefreshToken, setSession } from '../auth';
-import axiosInstance from '../../utils/axios';
 
 type LoginPayload = { user: IUserProfile; token: string };
 type RegisterPayload = LoginPayload;
@@ -28,10 +28,11 @@ export const login = createAsyncThunk<
     const { data } = await loginApi(payload);
     setSession(data.accessToken);
     setRefreshToken(data.refreshToken);
+    
     return { user: data.profile, token: data.accessToken };
   } catch (error) {
     return thunkAPI.rejectWithValue(
-      error instanceof Error ? error.message : 'Something went wrong'
+      error instanceof Error ? error.message : 'Login failed'
     );
   }
 });
@@ -48,7 +49,7 @@ export const register = createAsyncThunk<
     return { user: data.profile, token: data.accessToken };
   } catch (error) {
     return thunkAPI.rejectWithValue(
-      error instanceof Error ? error.message : 'Something went wrong'
+      error instanceof Error ? error.message : 'Register failed'
     );
   }
 });

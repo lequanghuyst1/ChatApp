@@ -1,7 +1,7 @@
 public interface ICacheRepository
 {
-    Task<bool> SetCacheAsync<T>(string key, T value, TimeSpan? absoluteExpiration = null);
-    Task<bool> RemoveCacheAsync(string key);
-    Task<T?> GetCacheAsync<T>(string key);
-    Task<bool> IsCacheExistAsync(string key);
+    bool SetCache<T>(string key, T value, TimeSpan? absoluteExpiration = null);
+    bool RemoveCache(string key);
+    T? GetCache<T>(string key);
+    bool IsCacheExist(string key);
 }

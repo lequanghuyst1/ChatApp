@@ -1,19 +1,24 @@
 // import "./App.css";
-import AuthProvider from "./stores/auth";
-import Router from "./routes/sections";
-import ThemeProvider from "./theme";
-import { Provider } from "react-redux";
-import { store } from "./stores/store";
+import Router from './routes/sections';
+import ThemeProvider from './theme';
+import { useAppDispatch, useAppSelector } from './stores/hook';
+import { initialize } from './stores/slices/authSlice';
+import { useEffect } from 'react';
 
 function App() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(initialize());
+  }, [dispatch]);
+
+  const auth = useAppSelector((state) => state.auth);
+  console.log(auth);
+
   return (
-    <Provider store={store}>
-      <AuthProvider>
-        <ThemeProvider>
-          <Router />
-        </ThemeProvider>
-      </AuthProvider>
-    </Provider>
+    <ThemeProvider>
+      <Router />
+    </ThemeProvider>
   );
 }
 

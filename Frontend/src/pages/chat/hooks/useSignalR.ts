@@ -5,7 +5,7 @@ import {
   LogLevel,
 } from "@microsoft/signalr";
 import { useEffect, useState } from "react";
-import { HOST_CHAT_API } from "../../../config-global";
+import { HOST_CHAT_API } from "@/config-global";
 
 export interface ISocketOnEvent {
   methodName: string;

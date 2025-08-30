@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------
 
-import { paths } from "../../routes/paths";
-import axiosInstance, { endpoints } from "../../utils/axios";
+import { paths } from "@/routes/paths";
+import axiosInstance, { endpoints } from "@/utils/axios";
 
 export function jwtDecode(token: string) {
   const base64Url = token.split(".")[1];

@@ -1,33 +1,31 @@
-import { KeyboardEvent, useCallback, useEffect, useState } from "react";
-import { HubConnectionState } from "@microsoft/signalr";
-import { useGetChatDetail, useGetListChat } from "../../apis/chat";
-import { IMessage, ISearchMessage } from "../../types/message";
-import MessageList from "./message-list";
-import useSignalR, { ISocketOnEvent } from "./hooks/useSignalR";
-import { useGetListMessageByChat } from "../../apis/message";
-import { MessageType } from "../../types/enums";
+import { KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import { HubConnectionState } from '@microsoft/signalr';
+import { useGetChatDetail } from '@/apis/chat';
+import { IMessage, ISearchMessage } from '@/types/message';
+import MessageList from './message-list';
+import useSignalR, { ISocketOnEvent } from './hooks/useSignalR';
+import { useGetListMessageByChat } from '@/apis/message';
+import { MessageType } from '@/types/enums';
+import { useAppSelector } from '@/stores/hook';
 import {
   Avatar,
   Box,
   Card,
-  IconButton,
   inputBaseClasses,
   outlinedInputClasses,
   Stack,
   TextField,
   Typography,
-} from "@mui/material";
-import { useAuthContext } from "../../stores/auth";
+} from '@mui/material';
 
 type Props = {
   chatID: number;
 };
 
 function ChatDetail({ chatID }: Props) {
-  const { user } = useAuthContext();
+  const { user } = useAppSelector((state) => state.auth);
 
-  const { chat, chatLoading, chatError, chatValidating } =
-    useGetChatDetail(chatID);
+  const { chat, chatLoading, chatError, chatValidating } = useGetChatDetail(chatID);
 
   const [filters, setFilters] = useState<ISearchMessage>({
     chatID,
@@ -47,7 +45,7 @@ function ChatDetail({ chatID }: Props) {
 
   const [messages, setMessages] = useState<IMessage[]>([]);
 
-  const [message, setMessage] = useState<string>("");
+  const [message, setMessage] = useState<string>('');
 
   const { hubState, hubConnection } = useSignalR();
 
@@ -101,15 +99,15 @@ function ChatDetail({ chatID }: Props) {
   useEffect(() => {
     if (hubState === HubConnectionState.Connected && chatID) {
       hubConnection
-        ?.invoke("JoinChat", chatID)
-        .catch((err) => console.error("JoinChat error:", err));
+        ?.invoke('JoinChat', chatID)
+        .catch((err) => console.error('JoinChat error:', err));
     }
   }, [hubState, chatID, hubConnection]);
 
   useEffect(() => {
     if (hubState === HubConnectionState.Connected) {
       const eventReceiveMessage: ISocketOnEvent = {
-        methodName: "ReceiveMessage",
+        methodName: 'ReceiveMessage',
         newMethod: (message: IMessage) => {
           console.log(message);
           setMessages((prevMessages) => [...prevMessages, message]);
@@ -128,13 +126,13 @@ function ChatDetail({ chatID }: Props) {
 
   const sendMessage = async (message: string, type: MessageType) => {
     if (hubState === HubConnectionState.Connected) {
-      hubConnection?.invoke("SendMessage", chatID, message, type);
-      setMessage("");
+      hubConnection?.invoke('SendMessage', chatID, message, type);
+      setMessage('');
     }
   };
 
   const handleKeyPress = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       sendMessage(message, MessageType.TEXT);
     }
@@ -155,21 +153,13 @@ function ChatDetail({ chatID }: Props) {
   return (
     <Card
       sx={{
-        backgroundColor: "#1f1f1f",
-        height: "calc(100vh - 32px)",
+        backgroundColor: '#1f1f1f',
+        height: 'calc(100vh - 32px)',
         borderRadius: 1,
       }}
     >
-      <Stack
-        sx={{ flex: 1, height: "100%", pr: 1 }}
-        justifyContent="space-between"
-      >
-        <Stack
-          spacing={2}
-          direction="row"
-          alignItems="center"
-          sx={{ padding: "10px 12px" }}
-        >
+      <Stack sx={{ flex: 1, height: '100%', pr: 1 }} justifyContent="space-between">
+        <Stack spacing={2} direction="row" alignItems="center" sx={{ padding: '10px 12px' }}>
           <Avatar />
           <Typography color="white">
             {chat.participants.find((p) => p.userID !== user?.userID)?.fullName}
@@ -179,22 +169,22 @@ function ChatDetail({ chatID }: Props) {
         <Box
           sx={{
             flex: 1,
-            height: "calc(100% - 64px)",
-            overflowY: "auto", // hoặc "scroll"
+            height: 'calc(100% - 64px)',
+            overflowY: 'auto', // hoặc "scroll"
             mb: 2,
             // 👇 custom scrollbar
-            "&::-webkit-scrollbar": {
-              width: "10px", // độ rộng scrollbar
+            '&::-webkit-scrollbar': {
+              width: '10px', // độ rộng scrollbar
             },
-            "&::-webkit-scrollbar-track": {
-              background: "transparent", // nền track trong suốt
+            '&::-webkit-scrollbar-track': {
+              background: 'transparent', // nền track trong suốt
             },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "rgba(255,255,255,0.3)", // màu thanh kéo
-              borderRadius: "10px",
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(255,255,255,0.3)', // màu thanh kéo
+              borderRadius: '10px',
             },
-            "&::-webkit-scrollbar-thumb:hover": {
-              backgroundColor: "rgba(255,255,255,0.5)",
+            '&::-webkit-scrollbar-thumb:hover': {
+              backgroundColor: 'rgba(255,255,255,0.5)',
             },
           }}
         >
@@ -208,7 +198,7 @@ function ChatDetail({ chatID }: Props) {
           />
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center", padding: "12px 0" }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', padding: '12px 0' }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -218,21 +208,21 @@ function ChatDetail({ chatID }: Props) {
             onKeyDown={handleKeyPress}
             size="small"
             sx={{
-              bgcolor: "#3a3b3c",
-              color: "#fff",
+              bgcolor: '#3a3b3c',
+              color: '#fff',
               borderRadius: 3,
               [`& .${outlinedInputClasses.root}`]: {
                 borderRadius: 3,
               },
               [`& .${outlinedInputClasses.notchedOutline}`]: {
-                borderColor: "transparent",
+                borderColor: 'transparent',
               },
               [`& .${inputBaseClasses.input}`]: {
-                caretColor: "#fff", // Đổi màu cursor thành xanh lá khi focus
-                color: "#fff",
+                caretColor: '#fff', // Đổi màu cursor thành xanh lá khi focus
+                color: '#fff',
               },
               [`& .${inputBaseClasses.focused}`]: {
-                caretColor: "#fff", // Đổi màu cursor thành đỏ khi input được focus
+                caretColor: '#fff', // Đổi màu cursor thành đỏ khi input được focus
               },
             }}
           />

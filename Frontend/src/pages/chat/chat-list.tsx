@@ -1,6 +1,6 @@
-import { useAuthContext } from "../../stores/auth";
-import { IChat } from "../../types/chat";
 import { Avatar, Card, Stack, Typography } from "@mui/material";
+import { useAuthContext } from "@/stores/auth";
+import { IChat } from "@/types/chat";
 
 type Props = {
   chats: IChat[];

@@ -10,19 +10,18 @@ import {
   ListItemButton,
   ListItemText,
   Stack,
-  TextField,
   Typography,
   Tabs,
   Tab,
-} from "@mui/material";
-import { useCallback, useState } from "react";
-import { useGetListUser } from "../../../apis/profile";
+} from '@mui/material';
+import { useCallback, useState } from 'react';
+import { useGetListUser } from '@/apis/profile';
 import {
   acceptFriend,
   addRequestFriend,
   rejectFriend,
   useGetListFriendRequest,
-} from "../../../apis/friend";
+} from '@/apis/friend';
 
 interface Props {
   open: boolean;
@@ -31,19 +30,19 @@ interface Props {
 
 const TABS = [
   {
-    value: "users",
-    label: "Danh sách người dùng",
+    value: 'users',
+    label: 'Danh sách người dùng',
   },
   {
-    value: "requests",
-    label: "Yêu cầu kết bạn",
+    value: 'requests',
+    label: 'Yêu cầu kết bạn',
   },
 ];
 
 function AddFriendDialog({ open, onClose }: Props) {
-  const { users } = useGetListUser("");
+  const { users } = useGetListUser('');
 
-  const [value, setValue] = useState("users");
+  const [value, setValue] = useState('users');
 
   const { friendsRequest } = useGetListFriendRequest();
 
@@ -93,7 +92,7 @@ function AddFriendDialog({ open, onClose }: Props) {
         ))}
       </Tabs>
       <DialogContent>
-        {value === "users" && (
+        {value === 'users' && (
           <Stack>
             {users.map((user) => (
               <ListItem key={user.userID}>
@@ -102,21 +101,17 @@ function AddFriendDialog({ open, onClose }: Props) {
                 </ListItemAvatar>
                 <ListItemText>
                   <Typography>{user.fullname}</Typography>
-                  <Typography>
-                    {user.email ? user.email : user.phone}
-                  </Typography>
+                  <Typography>{user.email ? user.email : user.phone}</Typography>
                 </ListItemText>
                 <ListItemButton>
-                  <Button onClick={() => handleAddFriend(user.userID)}>
-                    Thêm
-                  </Button>
+                  <Button onClick={() => handleAddFriend(user.userID)}>Thêm</Button>
                 </ListItemButton>
               </ListItem>
             ))}
           </Stack>
         )}
 
-        {value === "requests" && (
+        {value === 'requests' && (
           <Stack>
             {friendsRequest.map((friend) => (
               <ListItem key={friend.id}>
@@ -127,12 +122,8 @@ function AddFriendDialog({ open, onClose }: Props) {
                   <Typography>{friend.friendName}</Typography>
                 </ListItemText>
                 <ListItemButton>
-                  <Button onClick={() => handleAcceptFriend(friend.id)}>
-                    Xác nhận
-                  </Button>
-                  <Button onClick={() => handleRejectFriend(friend.id)}>
-                    Từ chối
-                  </Button>
+                  <Button onClick={() => handleAcceptFriend(friend.id)}>Xác nhận</Button>
+                  <Button onClick={() => handleRejectFriend(friend.id)}>Từ chối</Button>
                 </ListItemButton>
               </ListItem>
             ))}

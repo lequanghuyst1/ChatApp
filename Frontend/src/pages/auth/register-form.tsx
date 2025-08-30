@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { IRegisterRequest } from "../../types/account";
-import { useAuthContext } from "../../stores/auth";
-import { Box, Button, Stack, TextField, Typography } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
+import React, { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Box, Stack, TextField, Typography, Alert } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { IRegisterRequest } from '@/types/account';
+import { useAppDispatch, useAppSelector } from '@/stores/hook';
+import { register, clearError } from '@/stores/slices/authSlice';
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
@@ -14,38 +15,41 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
     control,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<IRegisterRequest>();
 
-  const { register } = useAuthContext();
+  const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector((state) => state.auth);
 
-  const [loading, setLoading] = useState(false);
-  const [messageError, setMessageError] = useState("");
-
-  const onSubmit = (data: IRegisterRequest) => {
+  const onSubmit = async (data: IRegisterRequest) => {
     try {
-      setLoading(true);
-      console.log("Register:", data);
-      register(data);
-    } catch (error: any) {
-      console.error("Register failed:", error);
-      setMessageError(error.message);
-    } finally {
-      setLoading(false);
+      await dispatch(register(data)).unwrap();
+    } catch (error) {
+      // Error is already handled by the thunk
+      console.error('Register failed:', error);
     }
   };
 
+  useEffect(() => {
+    // Clear any previous errors when the component mounts
+    dispatch(clearError());
+  }, [dispatch]);
+
   return (
     <div>
-      <Typography variant="h5" gutterBottom sx={{ textAlign: "center" }}>
+      <Typography variant="h5" gutterBottom sx={{ textAlign: 'center' }}>
         Register
       </Typography>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => dispatch(clearError())}>
+          {error}
+        </Alert>
+      )}
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2}>
           <Controller
             name="firstName"
             control={control}
-            rules={{ required: "First name is required" }}
+            rules={{ required: 'First name is required' }}
             render={({ field }) => (
               <TextField
                 {...field}
@@ -63,7 +67,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
           <Controller
             name="lastName"
             control={control}
-            rules={{ required: "Last name is required" }}
+            rules={{ required: 'Last name is required' }}
             render={({ field }) => (
               <TextField
                 {...field}
@@ -81,7 +85,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
           <Controller
             name="username"
             control={control}
-            rules={{ required: "Username is required" }}
+            rules={{ required: 'Username is required' }}
             render={({ field }) => (
               <TextField
                 {...field}
@@ -98,7 +102,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
           <Controller
             name="password"
             control={control}
-            rules={{ required: "Password is required" }}
+            rules={{ required: 'Password is required' }}
             render={({ field }) => (
               <TextField
                 {...field}
@@ -113,22 +117,17 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
               />
             )}
           />
-          <LoadingButton
-            loading={loading}
-            color="primary"
-            variant="contained"
-            type="submit"
-          >
+          <LoadingButton loading={loading} color="primary" variant="contained" type="submit">
             Register
           </LoadingButton>
         </Stack>
       </form>
 
-      <Box sx={{ display: "flex", alignItems: "center", mt: 2, gap: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, gap: 1 }}>
         <Typography variant="body2"> Already have an account?</Typography>
         <Typography
           variant="body2"
-          sx={{ cursor: "pointer", color: "primary.main" }}
+          sx={{ cursor: 'pointer', color: 'primary.main' }}
           onClick={onSwitchToLogin}
         >
           Login

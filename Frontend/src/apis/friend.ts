@@ -1,8 +1,8 @@
-import useSWR, { mutate } from "swr";
-import { useMemo } from "react";
-import axiosInstance, { endpoints, fetcher } from "../utils/axios";
-import { IFriend } from "../types/friend";
-import { APIResponse } from "../utils/axios";
+import useSWR, { mutate } from 'swr';
+import { useMemo } from 'react';
+import axiosInstance, { endpoints, fetcher } from '@/utils/axios';
+import { IFriend } from '@/types/friend';
+import { APIResponse } from '@/utils/axios';
 
 const URL = endpoints.friend;
 
@@ -17,9 +17,11 @@ const options = {
 
 export const useListFriend = () => {
   try {
-    const { data, error, isLoading, isValidating } = useSWR<
-      APIResponse<IFriend[]>
-    >(`${URL.getList}`, fetcher, options);
+    const { data, error, isLoading, isValidating } = useSWR<APIResponse<IFriend[]>>(
+      `${URL.getList}`,
+      fetcher,
+      options
+    );
 
     const memoizedValue = useMemo(() => {
       const friends: IFriend[] = data?.data || [];
@@ -39,9 +41,11 @@ export const useListFriend = () => {
 
 export const useGetListFriendRequest = () => {
   try {
-    const { data, error, isLoading, isValidating } = useSWR<
-      APIResponse<IFriend[]>
-    >(`${URL.getListRequest}`, fetcher, options);
+    const { data, error, isLoading, isValidating } = useSWR<APIResponse<IFriend[]>>(
+      `${URL.getListRequest}`,
+      fetcher,
+      options
+    );
 
     const memoizedValue = useMemo(() => {
       const friendsRequest: IFriend[] = data?.data || [];
@@ -61,10 +65,9 @@ export const useGetListFriendRequest = () => {
 
 export const addRequestFriend = async (friendID: number) => {
   try {
-    const res = await axiosInstance.post<APIResponse<number>>(
-      `${URL.addFriend}`,
-      { FriendID: friendID }
-    );
+    const res = await axiosInstance.post<APIResponse<number>>(`${URL.addFriend}`, {
+      FriendID: friendID,
+    });
 
     const { data, code, message } = res.data;
 
@@ -76,10 +79,9 @@ export const addRequestFriend = async (friendID: number) => {
 
 export const acceptFriend = async (friendID: number) => {
   try {
-    const res = await axiosInstance.post<APIResponse<number>>(
-      `${URL.acceptFriend}`,
-      { FriendID: friendID }
-    );
+    const res = await axiosInstance.post<APIResponse<number>>(`${URL.acceptFriend}`, {
+      FriendID: friendID,
+    });
 
     const { data, code, message } = res.data;
 
@@ -96,10 +98,9 @@ export const acceptFriend = async (friendID: number) => {
 
 export const rejectFriend = async (friendID: number) => {
   try {
-    const res = await axiosInstance.post<APIResponse<number>>(
-      `${URL.rejectFriend}`,
-      { FriendID: friendID }
-    );
+    const res = await axiosInstance.post<APIResponse<number>>(`${URL.rejectFriend}`, {
+      FriendID: friendID,
+    });
 
     const { data, code, message } = res.data;
 
@@ -116,18 +117,15 @@ export const rejectFriend = async (friendID: number) => {
 
 export const blockFriend = async (friendID: number) => {
   try {
-    const res = await axiosInstance.post<APIResponse<number>>(
-      `${URL.blockFriend}`,
-      { FriendID: friendID }
-    );
+    const res = await axiosInstance.post<APIResponse<number>>(`${URL.blockFriend}`, {
+      FriendID: friendID,
+    });
 
     const { data, code, message } = res.data;
 
     if (code === 1) {
       mutate(`${URL.getList}`, (currentData: any) => {
-        const newData = currentData?.data?.filter(
-          (friend: any) => friend.friendID !== friendID
-        );
+        const newData = currentData?.data?.filter((friend: any) => friend.friendID !== friendID);
         return { ...currentData, data: newData };
       });
     }
@@ -140,10 +138,9 @@ export const blockFriend = async (friendID: number) => {
 
 export const unblockFriend = async (friendID: number) => {
   try {
-    const res = await axiosInstance.post<APIResponse<number>>(
-      `${URL.unblockFriend}`,
-      { FriendID: friendID }
-    );
+    const res = await axiosInstance.post<APIResponse<number>>(`${URL.unblockFriend}`, {
+      FriendID: friendID,
+    });
 
     const { data, code, message } = res.data;
 

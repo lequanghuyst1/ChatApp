@@ -1,24 +1,18 @@
-import {
-  useReducer,
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-} from "react";
-import axios from "axios";
-import { isValidToken, jwtDecode, setRefreshToken, setSession } from "./utils";
-import { AuthStateType, JWTContextType } from "./type";
-import { IUserProfile } from "../../types/profile";
-import { loginApi, registerApi } from "../../apis/account";
-import { ILoginRequest, IRegisterRequest } from "../../types/account";
-import { paths } from "../../routes/paths";
-import { useRouter } from "../../routes/hooks";
+import { useReducer, createContext, useCallback, useEffect, useMemo } from 'react';
+import axios from 'axios';
+import { IUserProfile } from '@/types/profile';
+import { loginApi, registerApi } from '@/apis/account';
+import { ILoginRequest, IRegisterRequest } from '@/types/account';
+import { paths } from '@/routes/paths';
+import { useRouter } from '@/routes/hooks';
+import { AuthStateType, JWTContextType } from './type';
+import { isValidToken, jwtDecode, setRefreshToken, setSession } from './utils';
 
 enum Types {
-  INITIAL = "INITIAL",
-  LOGIN = "LOGIN",
-  REGISTER = "REGISTER",
-  LOGOUT = "LOGOUT",
+  INITIAL = 'INITIAL',
+  LOGIN = 'LOGIN',
+  REGISTER = 'REGISTER',
+  LOGOUT = 'LOGOUT',
 }
 
 type Payload = {
@@ -74,7 +68,7 @@ const reducer = (state: AuthStateType, action: AuthAction) => {
 
 export const AuthContext = createContext<JWTContextType | undefined>(undefined);
 
-const STORAGE_KEY = "accessToken";
+const STORAGE_KEY = 'accessToken';
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -84,7 +78,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const toCamelCase = useCallback((o: any): any => {
     if (Array.isArray(o)) {
       return o.map((value: any) => {
-        if (typeof value === "object" && value !== null) {
+        if (typeof value === 'object' && value !== null) {
           return toCamelCase(value);
         }
         return value;
@@ -94,16 +88,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const newO: any = {};
     Object.keys(o).forEach((origKey) => {
       if (Object.prototype.hasOwnProperty.call(o, origKey)) {
-        const newKey = (
-          origKey.charAt(0).toLowerCase() + origKey.slice(1)
-        ).toString();
+        const newKey = (origKey.charAt(0).toLowerCase() + origKey.slice(1)).toString();
 
         let value = o[origKey];
 
-        if (
-          Array.isArray(value) ||
-          (value !== null && typeof value === "object")
-        ) {
+        if (Array.isArray(value) || (value !== null && typeof value === 'object')) {
           value = toCamelCase(value);
         }
 
@@ -120,7 +109,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const parsed = JSON.parse(jsonString);
         return toCamelCase(parsed);
       } catch (error) {
-        console.error("Error parsing JSON:", error);
+        console.error('Error parsing JSON:', error);
         throw error;
       }
     },
@@ -230,17 +219,17 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // ----------------------------------------------------------------------
 
-  const checkAuthenticated = state.user ? "authenticated" : "unauthenticated";
+  const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
 
-  const status = state.loading ? "loading" : checkAuthenticated;
+  const status = state.loading ? 'loading' : checkAuthenticated;
 
   const memoizedValue = useMemo(
     () => ({
       user: state.user,
-      method: "jwt",
-      loading: status === "loading",
-      authenticated: status === "authenticated",
-      unauthenticated: status === "unauthenticated",
+      method: 'jwt',
+      loading: status === 'loading',
+      authenticated: status === 'authenticated',
+      unauthenticated: status === 'unauthenticated',
       //
       login,
       register,
@@ -249,11 +238,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     [login, logout, register, state.user, status]
   );
 
-  return (
-    <AuthContext.Provider value={memoizedValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;

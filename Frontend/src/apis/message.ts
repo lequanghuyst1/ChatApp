@@ -1,7 +1,7 @@
-import useSWR from "swr";
-import { useMemo } from "react";
-import { IMessage, ISearchMessage } from "../types/message";
-import axiosInstance, { APIResponse, endpoints, fetcher } from "../utils/axios";
+import useSWR from 'swr';
+import { useMemo } from 'react';
+import { IMessage, ISearchMessage } from '../types/message';
+import axiosInstance, { APIResponse, endpoints, fetcher } from '../utils/axios';
 
 const URL = endpoints.message;
 
@@ -18,11 +18,7 @@ export const useGetListMessageByChat = (params: ISearchMessage) => {
   try {
     const URL_FETCH = [URL.getListByChat, { params }];
 
-    const { data, error, isLoading, isValidating } = useSWR(
-      URL_FETCH,
-      fetcher,
-      options
-    );
+    const { data, error, isLoading, isValidating } = useSWR(URL_FETCH, fetcher, options);
 
     const memoizedValue = useMemo(() => {
       const messages: IMessage[] = data?.data.messages || [];

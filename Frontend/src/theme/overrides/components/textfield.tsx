@@ -51,6 +51,9 @@ export function textField(theme: Theme) {
               transform: 'translate(12px, 6px) scale(0.75)',
             },
           },
+          '& .MuiFormLabel-asterisk': {
+            color: theme.palette.error.main,
+          },
         },
       },
     },

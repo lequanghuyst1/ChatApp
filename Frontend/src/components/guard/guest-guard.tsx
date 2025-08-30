@@ -1,10 +1,8 @@
 import { useEffect, useCallback } from 'react';
-import { paths } from '../../routes/paths';
-import { useAuthContext } from '../../stores/auth';
-import { useRouter, useSearchParams } from '../../routes/hooks';
-
+import { paths } from '@/routes/paths';
+import { useRouter, useSearchParams } from '@/routes/hooks';
+import { useAppSelector } from '@/stores/hook';
 import { LoadingScreen } from '../loading-screen';
-
 
 // ----------------------------------------------------------------------
 
@@ -13,27 +11,38 @@ type Props = {
 };
 
 export default function GuestGuard({ children }: Props) {
-  const { loading } = useAuthContext();
+  const { isAuthenticated, loading } = useAppSelector((state) => state.auth);
 
-  return <>{loading ? <LoadingScreen /> : <Container>{children}</Container>}</>;
+  return (
+    <>
+      {loading ? (
+        <LoadingScreen />
+      ) : (
+        <Container isAuthenticated={isAuthenticated}>{children}</Container>
+      )}
+    </>
+  );
 }
 
 // ----------------------------------------------------------------------
 
-function Container({ children }: Props) {
+type ContainerProps = {
+  children: React.ReactNode;
+  isAuthenticated: boolean;
+};
+
+function Container({ children, isAuthenticated }: ContainerProps) {
   const router = useRouter();
 
   const searchParams = useSearchParams();
 
   const returnTo = searchParams.get('returnTo') || paths.dashboard.root;
 
-  const { authenticated } = useAuthContext();
-
   const check = useCallback(() => {
-    if (authenticated) {
+    if (isAuthenticated) {
       router.replace(returnTo);
     }
-  }, [authenticated, returnTo, router]);
+  }, [isAuthenticated, returnTo, router]);
 
   useEffect(() => {
     check();

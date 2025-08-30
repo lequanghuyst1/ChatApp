@@ -1,5 +1,5 @@
 import { Box, Stack } from "@mui/material";
-import Iconify from "../../components/iconify";
+import Iconify from "@/components/iconify";
 
 interface Props {
     onAddFriend: () => void   
