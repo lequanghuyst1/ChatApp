@@ -8,18 +8,16 @@ const JwtLoginPage = lazy(() => import('@/pages/auth/views/jwt-login-view'));
 export const authRoutes = [
   {
     element: (
-      <Suspense fallback={<SplashScreen />}>
-        <Outlet />
-      </Suspense>
+      <GuestGuard>
+        <Suspense fallback={<SplashScreen />}>
+          <Outlet />
+        </Suspense>
+      </GuestGuard>
     ),
     children: [
       {
         path: 'login',
-        element: (
-          <GuestGuard>
-            <JwtLoginPage />
-          </GuestGuard>
-        ),
+        element: <JwtLoginPage />,
       },
     ],
   },

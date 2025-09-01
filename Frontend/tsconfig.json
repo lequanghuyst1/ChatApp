@@ -28,7 +28,8 @@
       "@/services/*": ["./src/services/*"],
       "@/apis/*": ["./src/apis/*"],
       "@/routes/*": ["./src/routes/*"]
-    }
+    },
+    "types": ["jest", "node"]
   },
   "include": ["src"],
   // "references": [{ "path": "./tsconfig.node.json" }]

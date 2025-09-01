@@ -1,6 +1,6 @@
-import { Avatar, Card, Stack, Typography } from "@mui/material";
-import { useAuthContext } from "@/stores/auth";
-import { IChat } from "@/types/chat";
+import { Avatar, Card, Stack, Typography } from '@mui/material';
+import { IChat } from '@/types/chat';
+import { useAppSelector } from '@/stores/hook';
 
 type Props = {
   chats: IChat[];
@@ -10,14 +10,9 @@ type Props = {
   onChatSelect: (chat: IChat) => void;
 };
 
-function ChatList({
-  chats,
-  selectedChatID,
-  chatsLoading,
-  chatsError,
-  onChatSelect,
-}: Props) {
-  const { user } = useAuthContext();
+function ChatList({ chats, selectedChatID, chatsLoading, chatsError, onChatSelect }: Props) {
+  const { user } = useAppSelector((state) => state.auth);
+
   if (chatsLoading) {
     return <div>Loading...</div>;
   }
@@ -29,8 +24,8 @@ function ChatList({
   return (
     <Card
       sx={{
-        backgroundColor: "#1f1f1f",
-        height: "100%",
+        backgroundColor: '#1f1f1f',
+        height: '100%',
         borderRadius: 1,
         px: 1,
       }}
@@ -44,14 +39,14 @@ function ChatList({
             spacing={2}
             sx={{
               p: 1.5,
-              cursor: "pointer",
-              transition: "all 0.2s ease-in-out",
-              "&:hover": {
-                backgroundColor: "#2f2f2f",
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                backgroundColor: '#2f2f2f',
                 borderRadius: 1,
               },
               ...(chat.id === selectedChatID && {
-                backgroundColor: "#2f2f2f",
+                backgroundColor: '#2f2f2f',
                 borderRadius: 1,
               }),
             }}
@@ -59,10 +54,7 @@ function ChatList({
           >
             <Avatar />
             <Typography color="white">
-              {
-                chat.participants.find((p) => p.userID !== user?.userID)
-                  ?.fullName
-              }
+              {chat.participants.find((p) => p.userID !== user?.userID)?.fullName}
             </Typography>
           </Stack>
         ))}
@@ -72,4 +64,3 @@ function ChatList({
 }
 
 export default ChatList;
-

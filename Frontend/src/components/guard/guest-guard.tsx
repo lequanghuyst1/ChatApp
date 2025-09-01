@@ -11,27 +11,19 @@ type Props = {
 };
 
 export default function GuestGuard({ children }: Props) {
-  const { isAuthenticated, loading } = useAppSelector((state) => state.auth);
+  const { loading } = useAppSelector((state) => state.auth);
 
-  return (
-    <>
-      {loading ? (
-        <LoadingScreen />
-      ) : (
-        <Container isAuthenticated={isAuthenticated}>{children}</Container>
-      )}
-    </>
-  );
+  return <>{loading ? <LoadingScreen /> : <Container>{children}</Container>}</>;
 }
 
 // ----------------------------------------------------------------------
 
 type ContainerProps = {
   children: React.ReactNode;
-  isAuthenticated: boolean;
 };
 
-function Container({ children, isAuthenticated }: ContainerProps) {
+function Container({ children }: ContainerProps) {
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const router = useRouter();
 
   const searchParams = useSearchParams();

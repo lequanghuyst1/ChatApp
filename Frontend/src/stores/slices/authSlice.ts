@@ -23,17 +23,15 @@ export const login = createAsyncThunk<
   LoginPayload, // return type
   ILoginRequest, // arg type
   { rejectValue: string } // reject value type
->('auth/login', async (payload, thunkAPI) => {
+>('auth/login', async (request, thunkAPI) => {
   try {
-    const { data } = await loginApi(payload);
+    const { data } = await loginApi(request);
     setSession(data.accessToken);
     setRefreshToken(data.refreshToken);
-    
-    return { user: data.profile, token: data.accessToken };
+
+    return { user: data.userProfile, token: data.accessToken };
   } catch (error) {
-    return thunkAPI.rejectWithValue(
-      error instanceof Error ? error.message : 'Login failed'
-    );
+    return thunkAPI.rejectWithValue(error instanceof Error ? error.message : 'Login failed');
   }
 });
 
@@ -41,16 +39,14 @@ export const register = createAsyncThunk<
   RegisterPayload,
   IRegisterRequest,
   { rejectValue: string }
->('auth/register', async (payload, thunkAPI) => {
+>('auth/register', async (request, thunkAPI) => {
   try {
-    const { data } = await registerApi(payload);
+    const { data } = await registerApi(request);
     setSession(data.accessToken);
     setRefreshToken(data.refreshToken);
-    return { user: data.profile, token: data.accessToken };
+    return { user: data.userProfile, token: data.accessToken };
   } catch (error) {
-    return thunkAPI.rejectWithValue(
-      error instanceof Error ? error.message : 'Register failed'
-    );
+    return thunkAPI.rejectWithValue(error instanceof Error ? error.message : 'Register failed');
   }
 });
 

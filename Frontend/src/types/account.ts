@@ -14,7 +14,7 @@ export interface IAccount {
 export interface ILoginResponse {
   accessToken: string;
   refreshToken: string;
-  profile: IUserProfile;
+  userProfile: IUserProfile;
 }
 
 export interface ILoginRequest {
@@ -32,5 +32,5 @@ export interface IRegisterRequest {
 export interface IRegisterResponse {
   accessToken: string;
   refreshToken: string;
-  profile: IUserProfile;
+  userProfile: IUserProfile;
 }

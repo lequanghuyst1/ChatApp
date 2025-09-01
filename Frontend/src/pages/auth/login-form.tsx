@@ -5,6 +5,8 @@ import { LoadingButton } from '@mui/lab';
 import { ILoginRequest } from '@/types/account';
 import { useAppDispatch, useAppSelector } from '@/stores/hook';
 import { login, clearError } from '@/stores/slices/authSlice';
+import { useRouter } from '@/routes/hooks';
+import { paths } from '@/routes/paths';
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
@@ -16,6 +18,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
     handleSubmit,
     formState: { errors },
   } = useForm<ILoginRequest>();
+  const router = useRouter();
 
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.auth);
@@ -23,6 +26,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   const onSubmit = async (data: ILoginRequest) => {
     try {
       await dispatch(login(data)).unwrap();
+      router.push(paths.chat.root);
     } catch (error) {
       // Error is already handled by the thunk
       console.error('Login failed:', error);

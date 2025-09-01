@@ -1,12 +1,10 @@
-import { Suspense, lazy } from "react";
-import { Outlet } from "react-router";
-import { paths } from "../paths";
-import { SplashScreen } from "../../components/loading-screen";
-import { AuthGuard } from "../../components/guard";
+import { Suspense, lazy } from 'react';
+import { Outlet } from 'react-router';
+import { paths } from '@/routes/paths';
+import { SplashScreen } from '@/components/loading-screen';
+import { AuthGuard } from '@/components/guard';
 
-const ChatView = lazy(
-  () => import("../../pages/chat/views/chat-view")
-);
+const ChatView = lazy(() => import('@/pages/chat/views/chat-view'));
 
 export const mainRoutes = [
   {
@@ -19,7 +17,7 @@ export const mainRoutes = [
     ),
     children: [
       {
-        path: paths.dashboard.root,
+        path: paths.chat.root,
         element: <ChatView />,
       },
     ],
