@@ -162,7 +162,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { data } = await loginApi(payload);
 
-      const { accessToken, refreshToken, profile } = data;
+      const { accessToken, refreshToken, userProfile } = data;
 
       setSession(accessToken);
       setRefreshToken(refreshToken);
@@ -173,7 +173,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         type: Types.LOGIN,
         payload: {
           user: {
-            ...profile,
+            ...userProfile,
           },
         },
       });
@@ -186,7 +186,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { data } = await registerApi(payload);
 
-      const { accessToken, refreshToken, profile } = data;
+      const { accessToken, refreshToken, userProfile } = data;
 
       setSession(accessToken);
       setRefreshToken(refreshToken);
@@ -195,7 +195,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         type: Types.LOGIN,
         payload: {
           user: {
-            ...profile,
+            ...userProfile,
           },
         },
       });

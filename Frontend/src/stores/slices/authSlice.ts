@@ -8,7 +8,7 @@ import { isValidToken, jwtDecode, setRefreshToken, setSession } from '../auth';
 type LoginPayload = { user: IUserProfile; token: string };
 type RegisterPayload = LoginPayload;
 
-type AuthStateType = {
+export type AuthStateType = {
   user: IUserProfile | null;
   token: string | null;
   isAuthenticated: boolean;
@@ -81,8 +81,8 @@ const authSlice = createSlice({
       }
     },
     logout: (state) => {
-      localStorage.removeItem(STORAGE_KEY);
-      delete axiosInstance.defaults.headers.common.Authorization;
+      setSession(null);
+      setRefreshToken(null);
       Object.assign(state, initialState);
     },
   },

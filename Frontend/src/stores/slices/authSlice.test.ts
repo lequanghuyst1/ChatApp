@@ -1,24 +1,48 @@
 import { describe, test, expect, jest, beforeEach } from '@jest/globals';
-import { configureStore, ThunkDispatch } from '@reduxjs/toolkit';
-import { AnyAction } from 'redux';
-import authReducer, { clearAuthState, clearError, initialize, logout, login } from './authSlice';
-import { ILoginRequest, ILoginResponse, IRegisterRequest } from '@/types/account';
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer, {
+  clearAuthState,
+  clearError,
+  initialize,
+  login,
+  logout,
+  register,
+} from './authSlice';
 import { IUserProfile } from '@/types/profile';
 import * as authUtils from '../auth';
-import * as accountApi from '@/apis/account';
 import axiosInstance, { APIResponse } from '@/utils/axios';
+import * as accountApi from '@/apis/account';
+import {
+  ILoginRequest,
+  ILoginResponse,
+  IRegisterRequest,
+  IRegisterResponse,
+} from '@/types/account';
+import { AppDispatch } from '../store';
 
-// Mock dependencies
+// Định nghĩa kiểu cho state của auth slice
+interface AuthState {
+  user: IUserProfile | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  error: string | null;
+}
+
+// Định nghĩa RootState cho store
+interface RootState {
+  auth: AuthState;
+}
+
 jest.mock('@/apis/account');
 jest.mock('@/utils/axios');
 jest.mock('../auth');
 
 describe('authSlice', () => {
-  let store: ReturnType<typeof configureStore> & {
-    dispatch: ThunkDispatch<unknown, unknown, AnyAction>;
-  };
+  let store: ReturnType<typeof configureStore<RootState>>;
+  let dispatch: AppDispatch;
 
-  const initialState = {
+  const initialState: AuthState = {
     user: null,
     token: null,
     isAuthenticated: false,
@@ -43,208 +67,219 @@ describe('authSlice', () => {
   const mockRefreshToken = 'mockRefreshToken';
 
   beforeEach(() => {
-    store = configureStore({
-      reducer: {
-        auth: authReducer,
-      },
-    }) as typeof store;
+    // Mock axiosInstance với Authorization
+    jest.mock('@/utils/axios', () => {
+      const axiosInstance = {
+        defaults: {
+          headers: {
+            common: {
+              Authorization: undefined, // Khởi tạo Authorization
+            },
+          },
+        },
+      };
+
+      return { axiosInstance };
+    });
+
+    store = configureStore<RootState>({ reducer: { auth: authReducer } });
+    dispatch = store.dispatch;
     jest.clearAllMocks();
+
+    // Mock localStorage
+    jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
+    jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {});
+
+    // Mock authUtils
+    jest.spyOn(authUtils, 'setSession').mockImplementation(() => {});
+    jest.spyOn(authUtils, 'setRefreshToken').mockImplementation(() => {});
+    jest.spyOn(authUtils, 'isValidToken').mockReturnValue(false);
+    jest.spyOn(authUtils, 'jwtDecode').mockReturnValue({ Data: null });
   });
 
-  // Test reducer actions
+  // --- Reducer actions ---
   describe('reducer actions', () => {
     test('clearAuthState resets state to initial', () => {
-      const modifiedState = {
-        ...initialState,
-        user: mockUser,
-        token: mockToken,
-        isAuthenticated: true,
-        error: 'some error',
-      };
-      const newState = authReducer(modifiedState, clearAuthState());
+      dispatch(clearAuthState());
+      const newState = store.getState().auth;
       expect(newState).toEqual(initialState);
     });
 
     test('clearError clears error state', () => {
-      const stateWithError = { ...initialState, error: 'some error' };
-      const newState = authReducer(stateWithError, clearError());
-      expect(newState.error).toBeNull();
-      expect(newState).toEqual({ ...stateWithError, error: null });
-    });
-
-    test('initialize sets state when valid token exists', () => {
-      const mockDecodedToken = { Data: mockUser };
-      (authUtils.isValidToken as jest.Mock).mockReturnValue(true);
-      (authUtils.jwtDecode as jest.Mock).mockReturnValue(mockDecodedToken);
-      localStorage.setItem('accessToken', mockToken);
-
-      const newState = authReducer(initialState, initialize());
-      expect(authUtils.setSession).toHaveBeenCalledWith(mockToken);
-      expect(newState).toEqual({
-        ...initialState,
-        user: mockUser,
-        token: mockToken,
-        isAuthenticated: true,
-      });
-    });
-
-    test('initialize does nothing with invalid token', () => {
-      (authUtils.isValidToken as jest.Mock).mockReturnValue(false);
-      localStorage.setItem('accessToken', mockToken);
-
-      const newState = authReducer(initialState, initialize());
+      dispatch(clearError());
+      const newState = store.getState().auth;
       expect(newState).toEqual(initialState);
     });
 
-    test('logout clears state and removes token', () => {
-      const modifiedState = {
+    test('initialize with valid token', () => {
+      jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(mockToken);
+      jest.spyOn(authUtils, 'isValidToken').mockReturnValue(true);
+      jest.spyOn(authUtils, 'jwtDecode').mockReturnValue({ Data: mockUser });
+
+      dispatch(initialize());
+
+      expect(authUtils.setSession).toHaveBeenCalledWith(mockToken);
+      const newState = store.getState().auth;
+
+      const expectedState = {
         ...initialState,
         user: mockUser,
         token: mockToken,
         isAuthenticated: true,
       };
-      const newState = authReducer(modifiedState, logout());
-      expect(localStorage.removeItem).toHaveBeenCalledWith('accessToken');
+
+      expect(newState).toEqual(expectedState);
+    });
+
+    test('initialize with invalid token', () => {
+      jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(mockToken);
+      jest.spyOn(authUtils, 'isValidToken').mockReturnValue(false);
+
+      dispatch(initialize());
+
+      expect(authUtils.setSession).not.toHaveBeenCalled();
+      const newState = store.getState().auth;
+      expect(newState).toEqual(initialState);
+    });
+
+    test('logout clears state and removes token', () => {
+      jest.spyOn(authUtils, 'setSession').mockImplementation(() => {});
+      jest.spyOn(authUtils, 'setRefreshToken').mockImplementation(() => {});
+      dispatch(logout());
+
       expect(axiosInstance.defaults.headers.common.Authorization).toBeUndefined();
+      expect(authUtils.setSession).toHaveBeenCalledWith(null);
+      expect(authUtils.setRefreshToken).toHaveBeenCalledWith(null);
+      const newState = store.getState().auth;
       expect(newState).toEqual(initialState);
     });
   });
 
-  // Test async thunks
-//   describe('async thunks', () => {
-//     describe('login', () => {
-//       const loginRequest: ILoginRequest = {
-//         username: 'testuser',
-//         password: 'password123',
-//       };
+  // --- Async thunks ---
+  describe('login', () => {
+    const loginRequest: ILoginRequest = { username: 'testuser', password: 'password123' };
 
-//       test('login fulfilled', async () => {
-//         const mockResponse: APIResponse<ILoginResponse> = {
-//           code: 1,
-//           message: 'Login successful',
-//           data: {
-//             accessToken: mockToken,
-//             refreshToken: mockRefreshToken,
-//             profile: mockUser,
-//           },
-//         };
-//         (accountApi.loginApi as jest.Mock).mockResolvedValue(mockResponse);
+    test('login pending', () => {
+      jest.spyOn(accountApi, 'loginApi').mockReturnValue(new Promise(() => {}));
+      dispatch(login(loginRequest));
 
-//         await store.dispatch(login(loginRequest));
-//         const state = store.getState().auth;
+      const state = store.getState().auth;
+      expect(state.loading).toBe(true);
+      expect(state.error).toBeNull();
+    });
 
-//         expect(accountApi.loginApi).toHaveBeenCalledWith(loginRequest);
-//         expect(authUtils.setSession).toHaveBeenCalledWith(mockToken);
-//         expect(authUtils.setRefreshToken).toHaveBeenCalledWith(mockRefreshToken);
-//         expect(state).toEqual({
-//           ...initialState,
-//           user: mockUser,
-//           token: mockToken,
-//           isAuthenticated: true,
-//         });
-//       });
+    test('login fulfilled', async () => {
+      const mockResponse: APIResponse<ILoginResponse> = {
+        code: 1,
+        message: 'Login successful',
+        data: { accessToken: mockToken, refreshToken: mockRefreshToken, userProfile: mockUser },
+      };
+      jest.spyOn(accountApi, 'loginApi').mockResolvedValue(mockResponse);
 
-//       test('login rejected', async () => {
-//         const errorMessage = 'Invalid credentials';
-//         (accountApi.loginApi as jest.Mock).mockRejectedValue(new Error(errorMessage));
+      // Act
+      await dispatch(login(loginRequest));
 
-//         await store.dispatch(login(loginRequest));
-//         const state = store.getState().auth;
+      // Assert
+      const newState = store.getState().auth;
 
-//         expect(state).toEqual({
-//           ...initialState,
-//           error: errorMessage,
-//           loading: false,
-//         });
-//       });
+      const expectedState = {
+        ...initialState,
+        user: mockUser,
+        token: mockToken,
+        isAuthenticated: true,
+        loading: false,
+      };
+      expect(accountApi.loginApi).toHaveBeenCalledWith(loginRequest);
+      expect(authUtils.setSession).toHaveBeenCalledWith(mockToken);
+      expect(authUtils.setRefreshToken).toHaveBeenCalledWith(mockRefreshToken);
+      expect(newState).toEqual(expectedState);
+    });
 
-//       test('login pending', async () => {
-//         const mockResponse = {
-//           data: {
-//             accessToken: mockToken,
-//             refreshToken: mockRefreshToken,
-//             profile: mockUser,
-//           },
-//         };
-//         (accountApi.loginApi as jest.Mock).mockReturnValue(new Promise(() => {}));
+    test('login rejected', async () => {
+      const error = { message: 'Login failed' };
+      jest.spyOn(accountApi, 'loginApi').mockRejectedValue(error);
 
-//         const promise = store.dispatch(login(loginRequest));
-//         const state = store.getState().auth;
+      // Act
+      await dispatch(login(loginRequest));
 
-//         expect(state.loading).toBe(true);
-//         expect(state.error).toBeNull();
+      // Assert
+      const newState = store.getState().auth;
 
-//         // Clean up pending promise
-//         (accountApi.loginApi as jest.Mock).mockResolvedValue(mockResponse);
-//         await promise;
-//       });
-//     });
+      const expectedState = {
+        ...initialState,
+        error: error.message,
+        loading: false,
+      };
+      expect(accountApi.loginApi).toHaveBeenCalledWith(loginRequest);
+      expect(newState).toEqual(expectedState);
+    });
+  });
 
-//     describe('register', () => {
-//       const registerRequest: IRegisterRequest = {
-//         username: 'testuser',
-//         email: 'test@example.com',
-//         password: 'password123',
-//       };
+  describe('register', () => {
+    const registerRequest: IRegisterRequest = {
+      username: 'testuser',
+      firstName: 'test',
+      lastName: 'user',
+      password: 'password123',
+    };
 
-//       test('register fulfilled', async () => {
-//         const mockResponse = {
-//           data: {
-//             accessToken: mockToken,
-//             refreshToken: mockRefreshToken,
-//             profile: mockUser,
-//           },
-//         };
-//         (accountApi.registerApi as jest.Mock).mockResolvedValue(mockResponse);
+    test('register pending', () => {
+      jest.spyOn(accountApi, 'registerApi').mockReturnValue(new Promise(() => {}));
 
-//         await store.dispatch(register(registerRequest));
-//         const state = store.getState().auth;
+      // Act
+      dispatch(register(registerRequest));
 
-//         expect(accountApi.registerApi).toHaveBeenCalledWith(registerRequest);
-//         expect(authUtils.setSession).toHaveBeenCalledWith(mockToken);
-//         expect(authUtils.setRefreshToken).toHaveBeenCalledWith(mockRefreshToken);
-//         expect(state).toEqual({
-//           ...initialState,
-//           user: mockUser,
-//           token: mockToken,
-//           isAuthenticated: true,
-//         });
-//       });
+      // Assert
+      const state = store.getState().auth;
+      expect(state.loading).toBe(true);
+      expect(state.error).toBeNull();
+    });
 
-//       test('register rejected', async () => {
-//         const errorMessage = 'Registration failed';
-//         (accountApi.registerApi as jest.Mock).mockRejectedValue(new Error(errorMessage));
+    test('register fulfilled', async () => {
+      const mockResponse: APIResponse<IRegisterResponse> = {
+        code: 1,
+        message: 'Register successful',
+        data: { accessToken: mockToken, refreshToken: mockRefreshToken, userProfile: mockUser },
+      };
+      jest.spyOn(accountApi, 'registerApi').mockResolvedValue(mockResponse);
 
-//         await store.dispatch(register(registerRequest));
-//         const state = store.getState().auth;
+      // Act
+      await dispatch(register(registerRequest));
 
-//         expect(state).toEqual({
-//           ...initialState,
-//           error: errorMessage,
-//           loading: false,
-//         });
-//       });
+      // Assert
+      const newState = store.getState().auth;
 
-//       test('register pending', async () => {
-//         const mockResponse = {
-//           data: {
-//             accessToken: mockToken,
-//             refreshToken: mockRefreshToken,
-//             profile: mockUser,
-//           },
-//         };
-//         (accountApi.registerApi as jest.Mock).mockReturnValue(new Promise(() => {}));
+      const expectedState = {
+        ...initialState,
+        user: mockUser,
+        token: mockToken,
+        isAuthenticated: true,
+        loading: false,
+      };
+      expect(accountApi.registerApi).toHaveBeenCalledWith(registerRequest);
+      expect(authUtils.setSession).toHaveBeenCalledWith(mockToken);
+      expect(authUtils.setRefreshToken).toHaveBeenCalledWith(mockRefreshToken);
+      expect(newState).toEqual(expectedState);
+    });
 
-//         const promise = store.dispatch(register(registerRequest));
-//         const state = store.getState().auth;
+    test('register rejected', async () => {
+      const error = { message: 'Register failed' };
+      jest.spyOn(accountApi, 'registerApi').mockRejectedValue(error);
 
-//         expect(state.loading).toBe(true);
-//         expect(state.error).toBeNull();
+      // Act
+      await dispatch(register(registerRequest));
 
-//         // Clean up pending promise
-//         (accountApi.registerApi as jest.Mock).mockResolvedValue(mockResponse);
-//         await promise;
-//       });
-//     });
-//   });
+      // Assert
+      const newState = store.getState().auth;
+
+      const expectedState = {
+        ...initialState,
+        error: error.message,
+        loading: false,
+      };
+      expect(accountApi.registerApi).toHaveBeenCalledWith(registerRequest);
+      expect(newState).toEqual(expectedState);
+    });
+  });
 });
