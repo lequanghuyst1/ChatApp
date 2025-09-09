@@ -1,5 +1,5 @@
-import axios, { AxiosRequestConfig } from "axios";
-import { HOST_CHAT_API } from "../config-global";
+import axios, { AxiosRequestConfig } from 'axios';
+import { HOST_CHAT_API } from '../config-global';
 
 export interface APIResponse<T = any> {
   data: T;
@@ -10,8 +10,8 @@ export interface APIResponse<T = any> {
 const axiosInstance = axios.create({
   baseURL: HOST_CHAT_API,
   headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
   },
 });
 
@@ -19,9 +19,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) =>
     Promise.reject(
-      (error.response && error.response.data) ||
-        error.message ||
-        "Something went wrong"
+      (error.response && error.response.data) || error.message || 'Something went wrong'
     )
 );
 
@@ -42,51 +40,119 @@ export const poster = async (args: string | [string, any]) => {
   return response.data;
 };
 
+// const createEndpoints = (base: string, paths: Record<string, string>) => {
+//   const result: Record<string, string> = {};
+//   for (const [key, path] of Object.entries(paths)) {
+//     result[key] = `${base}/api/${path}`;
+//   }
+//   return result;
+// };
+
+// export const endpoints = {
+//   auth: createEndpoints('account', {
+//     login: 'login',
+//     register: 'register',
+//     retoken: 'refresh-token',
+//   } as const),
+//   friend: createEndpoints('friend', {
+//     getList: 'get-list',
+//     getListRequest: 'list-request',
+//     addFriend: 'add',
+//     removeFriend: 'remove',
+//     acceptFriend: 'accept',
+//     rejectFriend: 'reject',
+//     blockFriend: 'block',
+//     unblockFriend: 'unblock',
+//   }),
+//   chat: createEndpoints('chat', {
+//     getList: 'get-list',
+//     createChat: 'create',
+//     updateChat: 'update',
+//     deleteChat: 'delete',
+//     addParticipant: 'add-participant',
+//     removeParticipant: 'remove-participant',
+//     leaveChat: 'leave',
+//     getChatById: 'get-by-id',
+//   }),
+//   chatParticipant: createEndpoints('chat-participant', {
+//     getListByChat: 'list',
+//     add: 'add',
+//     remove: 'remove',
+//   }),
+//   message: createEndpoints('message', {
+//     getListByChat: 'get-list-by-chat',
+//     send: 'send',
+//     edit: 'edit',
+//     delete: 'delete',
+//   }),
+//   profile: createEndpoints('profile', {
+//     getProfile: 'get-profile',
+//     getUsers: 'get-users',
+//   }),
+//   reaction: createEndpoints('reaction', {
+//     getListByMessage: 'list',
+//     add: 'add',
+//     update: 'update',
+//     remove: 'remove',
+//   }),
+// };
+
+const BASE_PATHS = {
+  account: `api/account`,
+  friend: `api/friend`,
+  chat: `api/chat`,
+  chatParticipant: `api/chat-participant`,
+  message: `api/message`,
+  profile: `api/profile`,
+  reaction: `api/reaction`,
+} as const;
+
+// Định nghĩa endpoints
 export const endpoints = {
   auth: {
-    login: "api/account/login",
-    register: "api/account/register",
-    retoken: "api/account/refresh-token",
+    login: `${BASE_PATHS.account}/login`,
+    register: `${BASE_PATHS.account}/register`,
+    retoken: `${BASE_PATHS.account}/refresh-token`,
   },
   friend: {
-    getList: "api/friend/get-list",
-    getListRequest: "api/friend/list-request",
-    addFriend: "api/friend/add",
-    removeFriend: "api/friend/remove",
-    acceptFriend: "api/friend/accept",
-    rejectFriend: "api/friend/reject",
-    blockFriend: "api/friend/block",
-    unblockFriend: "api/friend/unblock",
+    getList: `${BASE_PATHS.friend}/get-list`,
+    getListRequest: `${BASE_PATHS.friend}/list-request`,
+    addFriend: `${BASE_PATHS.friend}/add`,
+    removeFriend: `${BASE_PATHS.friend}/remove`,
+    acceptFriend: `${BASE_PATHS.friend}/accept`,
+    rejectFriend: `${BASE_PATHS.friend}/reject`,
+    blockFriend: `${BASE_PATHS.friend}/block`,
+    unblockFriend: `${BASE_PATHS.friend}/unblock`,
   },
   chat: {
-    getList: "api/chat/get-list",
-    createChat: "api/chat/create",
-    updateChat: "api/chat/update",
-    deleteChat: "api/chat/delete",
-    addParticipant: "api/chat/add-participant",
-    removeParticipant: "api/chat/remove-participant",
-    leaveChat: "api/chat/leave",
-    getChatById: "api/chat/get-by-id",
+    getList: `${BASE_PATHS.chat}/get-list`,
+    createChat: `${BASE_PATHS.chat}/create`,
+    updateChat: `${BASE_PATHS.chat}/update`,
+    deleteChat: `${BASE_PATHS.chat}/delete`,
+    addParticipant: `${BASE_PATHS.chat}/add-participant`,
+    removeParticipant: `${BASE_PATHS.chat}/remove-participant`,
+    leaveChat: `${BASE_PATHS.chat}/leave`,
+    getChatById: `${BASE_PATHS.chat}/get-by-id`,
   },
   chatParticipant: {
-    getListByChat: "api/chat-participant/list",
-    add: "api/chat-participant/add",
-    remove: "api/chat-participant/remove",
+    getListByChat: `${BASE_PATHS.chatParticipant}/list`,
+    add: `${BASE_PATHS.chatParticipant}/add`,
+    remove: `${BASE_PATHS.chatParticipant}/remove`,
   },
   message: {
-    getListByChat: "api/message/get-list-by-chat",
-    send: "api/message/send",
-    edit: "api/message/edit",
-    delete: "api/message/delete",
+    getListByChat: `${BASE_PATHS.message}/get-list-by-chat`,
+    send: `${BASE_PATHS.message}/send`,
+    edit: `${BASE_PATHS.message}/edit`,
+    delete: `${BASE_PATHS.message}/delete`,
   },
   profile: {
-    getProfile: "api/profile/get-profile",
-    getUsers: "api/profile/get-users",
+    getProfile: `${BASE_PATHS.profile}/get-profile`,
+    getUsers: `${BASE_PATHS.profile}/get-users`,
   },
   reaction: {
-    getListByMessage: "api/reaction/list",
-    add: "api/reaction/add",
-    update: "api/reaction/update",
-    remove: "api/reaction/remove",
+    getListByMessage: `${BASE_PATHS.reaction}/list`,
+    add: `${BASE_PATHS.reaction}/add`,
+    update: `${BASE_PATHS.reaction}/update`,
+    remove: `${BASE_PATHS.reaction}/remove`,
   },
-};
+} as const;
