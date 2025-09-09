@@ -87,15 +87,15 @@ describe('authSlice', () => {
     jest.clearAllMocks();
 
     // Mock localStorage
-    jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
-    jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
-    jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {});
+    // jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
+    // jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    // jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {});
 
-    // Mock authUtils
-    jest.spyOn(authUtils, 'setSession').mockImplementation(() => {});
-    jest.spyOn(authUtils, 'setRefreshToken').mockImplementation(() => {});
-    jest.spyOn(authUtils, 'isValidToken').mockReturnValue(false);
-    jest.spyOn(authUtils, 'jwtDecode').mockReturnValue({ Data: null });
+    // // Mock authUtils
+    // jest.spyOn(authUtils, 'setSession').mockImplementation(() => {});
+    // jest.spyOn(authUtils, 'setRefreshToken').mockImplementation(() => {});
+    // jest.spyOn(authUtils, 'isValidToken').mockReturnValue(false);
+    // jest.spyOn(authUtils, 'jwtDecode').mockReturnValue({ Data: null });
   });
 
   // --- Reducer actions ---
@@ -112,7 +112,7 @@ describe('authSlice', () => {
       expect(newState).toEqual(initialState);
     });
 
-    test('initialize with valid token', () => {
+    test('initialize with has token and valid token', () => {
       jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(mockToken);
       jest.spyOn(authUtils, 'isValidToken').mockReturnValue(true);
       jest.spyOn(authUtils, 'jwtDecode').mockReturnValue({ Data: mockUser });
@@ -120,39 +120,42 @@ describe('authSlice', () => {
       dispatch(initialize());
 
       expect(authUtils.setSession).toHaveBeenCalledWith(mockToken);
-      const newState = store.getState().auth;
-
-      const expectedState = {
+      expect(store.getState().auth).toEqual({
         ...initialState,
         user: mockUser,
         token: mockToken,
         isAuthenticated: true,
-      };
-
-      expect(newState).toEqual(expectedState);
+      });
     });
 
-    test('initialize with invalid token', () => {
+    test('initialize with has token but invalid', () => {
       jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(mockToken);
       jest.spyOn(authUtils, 'isValidToken').mockReturnValue(false);
 
       dispatch(initialize());
 
       expect(authUtils.setSession).not.toHaveBeenCalled();
-      const newState = store.getState().auth;
-      expect(newState).toEqual(initialState);
+      expect(store.getState().auth).toEqual(initialState);
+    });
+
+    test('initialize with no token', () => {
+      jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
+
+      dispatch(initialize());
+
+      expect(authUtils.setSession).not.toHaveBeenCalled();
+      expect(store.getState().auth).toEqual(initialState);
     });
 
     test('logout clears state and removes token', () => {
-      jest.spyOn(authUtils, 'setSession').mockImplementation(() => {});
-      jest.spyOn(authUtils, 'setRefreshToken').mockImplementation(() => {});
+      // jest.spyOn(authUtils, 'setSession').mockImplementation(() => {});
+      // jest.spyOn(authUtils, 'setRefreshToken').mockImplementation(() => {});
       dispatch(logout());
 
       expect(axiosInstance.defaults.headers.common.Authorization).toBeUndefined();
       expect(authUtils.setSession).toHaveBeenCalledWith(null);
       expect(authUtils.setRefreshToken).toHaveBeenCalledWith(null);
-      const newState = store.getState().auth;
-      expect(newState).toEqual(initialState);
+      expect(store.getState().auth).toEqual(initialState);
     });
   });
 
@@ -164,9 +167,8 @@ describe('authSlice', () => {
       jest.spyOn(accountApi, 'loginApi').mockReturnValue(new Promise(() => {}));
       dispatch(login(loginRequest));
 
-      const state = store.getState().auth;
-      expect(state.loading).toBe(true);
-      expect(state.error).toBeNull();
+      expect(store.getState().auth.loading).toBe(true);
+      expect(store.getState().auth.error).toBeNull();
     });
 
     test('login fulfilled', async () => {
@@ -181,19 +183,16 @@ describe('authSlice', () => {
       await dispatch(login(loginRequest));
 
       // Assert
-      const newState = store.getState().auth;
-
-      const expectedState = {
+      expect(accountApi.loginApi).toHaveBeenCalledWith(loginRequest);
+      expect(authUtils.setSession).toHaveBeenCalledWith(mockToken);
+      expect(authUtils.setRefreshToken).toHaveBeenCalledWith(mockRefreshToken);
+      expect(store.getState().auth).toEqual({
         ...initialState,
         user: mockUser,
         token: mockToken,
         isAuthenticated: true,
         loading: false,
-      };
-      expect(accountApi.loginApi).toHaveBeenCalledWith(loginRequest);
-      expect(authUtils.setSession).toHaveBeenCalledWith(mockToken);
-      expect(authUtils.setRefreshToken).toHaveBeenCalledWith(mockRefreshToken);
-      expect(newState).toEqual(expectedState);
+      });
     });
 
     test('login rejected', async () => {
@@ -204,15 +203,12 @@ describe('authSlice', () => {
       await dispatch(login(loginRequest));
 
       // Assert
-      const newState = store.getState().auth;
-
-      const expectedState = {
+      expect(accountApi.loginApi).toHaveBeenCalledWith(loginRequest);
+      expect(store.getState().auth).toEqual({
         ...initialState,
         error: error.message,
         loading: false,
-      };
-      expect(accountApi.loginApi).toHaveBeenCalledWith(loginRequest);
-      expect(newState).toEqual(expectedState);
+      });
     });
   });
 
@@ -248,19 +244,17 @@ describe('authSlice', () => {
       await dispatch(register(registerRequest));
 
       // Assert
-      const newState = store.getState().auth;
 
-      const expectedState = {
+      expect(accountApi.registerApi).toHaveBeenCalledWith(registerRequest);
+      expect(authUtils.setSession).toHaveBeenCalledWith(mockToken);
+      expect(authUtils.setRefreshToken).toHaveBeenCalledWith(mockRefreshToken);
+      expect(store.getState().auth).toEqual({
         ...initialState,
         user: mockUser,
         token: mockToken,
         isAuthenticated: true,
         loading: false,
-      };
-      expect(accountApi.registerApi).toHaveBeenCalledWith(registerRequest);
-      expect(authUtils.setSession).toHaveBeenCalledWith(mockToken);
-      expect(authUtils.setRefreshToken).toHaveBeenCalledWith(mockRefreshToken);
-      expect(newState).toEqual(expectedState);
+      });
     });
 
     test('register rejected', async () => {
@@ -271,15 +265,12 @@ describe('authSlice', () => {
       await dispatch(register(registerRequest));
 
       // Assert
-      const newState = store.getState().auth;
-
-      const expectedState = {
+      expect(accountApi.registerApi).toHaveBeenCalledWith(registerRequest);
+      expect(store.getState().auth).toEqual({
         ...initialState,
         error: error.message,
         loading: false,
-      };
-      expect(accountApi.registerApi).toHaveBeenCalledWith(registerRequest);
-      expect(newState).toEqual(expectedState);
+      });
     });
   });
 });
