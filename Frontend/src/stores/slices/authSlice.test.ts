@@ -244,7 +244,6 @@ describe('authSlice', () => {
       await dispatch(register(registerRequest));
 
       // Assert
-
       expect(accountApi.registerApi).toHaveBeenCalledWith(registerRequest);
       expect(authUtils.setSession).toHaveBeenCalledWith(mockToken);
       expect(authUtils.setRefreshToken).toHaveBeenCalledWith(mockRefreshToken);
