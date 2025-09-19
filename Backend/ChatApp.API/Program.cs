@@ -1,4 +1,6 @@
 using AutoMapper;
+using ChatApp.API.gRPC;
+using ChatApp.API.Protos;
 using ChatApp.Application;
 using ChatApp.Application.AutoMapper;
 using ChatApp.Infrastructure;
@@ -9,6 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddGrpc();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigin", builder =>
@@ -18,6 +22,7 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader();
     });
 });
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR(options =>
 {
@@ -44,7 +49,6 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
 ApplicationServiceRegistration.AddApplicationServices(builder.Services);
 InfrastructureServiceRegistration.AddInfrastructureServices(builder.Services);
-
 
 builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, o =>
 {
@@ -95,6 +99,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseRouting();
+
 app.UseCors("AllowOrigin");
 
 app.UseHttpsRedirection();
@@ -106,6 +112,12 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapHub<ChatHub>("/chatHub");
+
+app.UseGrpcWeb();
+
+app.MapGrpcService<ProfileInternalService>().RequireHost("*:7852").EnableGrpcWeb();
+
+app.MapGet("/", () => "gRPC server is running...");
 
 app.Run();
 
