@@ -1,6 +1,7 @@
-﻿using ChatApp.Utitilies.Database;
+﻿using ChatApp.Utilities.Database;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Data;
 
 
@@ -28,7 +29,7 @@ namespace Ecommerce.Infrastructure.Repositories
         {
             try
             {
-                return await _dbHelper.GetListSP<TEntity>(SPName);
+                return await _dbHelper.GetListAsync<TEntity>(SPName);
             }
             catch (Exception ex)
             {
@@ -40,7 +41,7 @@ namespace Ecommerce.Infrastructure.Repositories
         {
             try
             {
-                return await _dbHelper.GetListSP<TEntity>(SPName, parameters);
+                return await _dbHelper.GetListAsync<TEntity>(SPName, parameters);
             }
             catch (Exception ex)
             {
@@ -52,7 +53,7 @@ namespace Ecommerce.Infrastructure.Repositories
         {
             try
             {
-                return _dbHelper.ExecuteNonQuerySP(SPName);
+                return _dbHelper.ExecuteNonQueryAsync(SPName);
             }
             catch (Exception ex)
             {
@@ -66,7 +67,7 @@ namespace Ecommerce.Infrastructure.Repositories
         {
             try
             {
-                return _dbHelper.ExecuteNonQuerySP(SPName, parameters);
+                return _dbHelper.ExecuteNonQueryAsync(SPName, parameters);
             }
             catch (Exception ex)
             {
@@ -80,7 +81,7 @@ namespace Ecommerce.Infrastructure.Repositories
         {
             try
             {
-                return _dbHelper.GetInstanceSP<TEntity>(SPName);
+                return _dbHelper.GetInstanceAsync<TEntity>(SPName);
             }
             catch (Exception ex)
             {
@@ -93,7 +94,7 @@ namespace Ecommerce.Infrastructure.Repositories
         {
             try
             {
-                return _dbHelper.GetInstanceSP<TEntity>(SPName, parameters);
+                return _dbHelper.GetInstanceAsync<TEntity>(SPName, parameters);
             }
             catch (Exception ex)
             {
@@ -108,7 +109,7 @@ namespace Ecommerce.Infrastructure.Repositories
         {
             try
             {
-                return _dbHelper.GetInstance<TEntity>(strSQL, parameters);
+                return _dbHelper.GetInstanceAsync<TEntity>(strSQL, parameters);
             }
             catch (Exception ex)
             {

@@ -8,369 +8,192 @@ using System.Threading.Tasks;
 using Dapper;
 using Newtonsoft.Json;
 
-namespace ChatApp.Utitilies.Database
+namespace ChatApp.Utilities.Database
 {
+    /// <summary>
+    /// Helper for executing async database operations using Dapper.
+    /// Provides built-in logging and consistent exception handling.
+    /// </summary>
     public class DBHelperAsync
     {
-        private string _connectionString = "";
-
-        public string FixConnectionString(string connectionString, bool pooling)
-        {
-            var connectionParts = connectionString.Split(';');
-            var fixedConnectionString = new StringBuilder();
-
-            foreach (var part in connectionParts)
-            {
-                if (string.IsNullOrWhiteSpace(part)) continue;
-
-                if (part.ToLower().StartsWith("pooling=") ||
-                    part.ToLower().StartsWith("min pool size=") ||
-                    part.ToLower().StartsWith("max pool size=") ||
-                    part.ToLower().StartsWith("connect timeout="))
-                {
-                    continue;
-                }
-
-                fixedConnectionString.Append(part).Append(';');
-            }
-
-            if (pooling)
-            {
-                fixedConnectionString.Append("Pooling=true;Min Pool Size=5;Max Pool Size=25;Connect Timeout=5;");
-            }
-            else
-            {
-                fixedConnectionString.Append("Pooling=false;Connect Timeout=10;");
-            }
-
-            return fixedConnectionString.ToString();
-        }
-
-        
-        public DBHelperAsync() { }
+        private string _connectionString;
 
         public DBHelperAsync(string connectionString)
         {
-            _connectionString = connectionString;
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         }
 
         public string ConnectionString
         {
             get => _connectionString;
-            set => _connectionString = value;
+            set => _connectionString = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        private SqlConnection _connectionToDB;
+        #region Connection Management
 
-        public SqlConnection ConnectionToDB
+        private string FixConnectionString(string connectionString, bool pooling)
         {
-            get => _connectionToDB;
-            private set => _connectionToDB = value;
+            var parts = connectionString.Split(';', StringSplitOptions.RemoveEmptyEntries);
+            var sb = new StringBuilder();
+
+            foreach (var part in parts)
+            {
+                var lower = part.Trim().ToLowerInvariant();
+                if (lower.StartsWith("pooling=") ||
+                    lower.StartsWith("min pool size=") ||
+                    lower.StartsWith("max pool size=") ||
+                    lower.StartsWith("connect timeout="))
+                    continue;
+
+                sb.Append(part.Trim()).Append(';');
+            }
+
+            sb.Append(pooling
+                ? "Pooling=true;Min Pool Size=5;Max Pool Size=25;Connect Timeout=5;"
+                : "Pooling=false;Connect Timeout=10;");
+
+            return sb.ToString();
         }
 
-
-        public async Task Open()
+        private async Task<SqlConnection> CreateConnectionAsync()
         {
             if (string.IsNullOrWhiteSpace(_connectionString))
-            {
                 throw new InvalidOperationException("Connection string cannot be null or empty.");
-            }
-
-            _connectionToDB = await OpenConnection();
-        }
-
-        public async Task<SqlConnection> OpenConnection(string connectionString)
-        {
-            _connectionString = connectionString;
-            return await OpenConnection();
-        }
-
-        public async Task<SqlConnection> OpenConnection()
-        {
-            if (string.IsNullOrWhiteSpace(_connectionString))
-            {
-                throw new InvalidOperationException("Connection string cannot be null or empty.");
-            }
 
             try
             {
-                var connection = new SqlConnection(FixConnectionString(_connectionString, true));
-                await connection.OpenAsync();
-                return connection;
+                var conn = new SqlConnection(FixConnectionString(_connectionString, true));
+                await conn.OpenAsync();
+                return conn;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Retry with pooling disabled in case of max pool issue
-                var connection = new SqlConnection(FixConnectionString(_connectionString, false));
-                await connection.OpenAsync();
-                return connection;
+                var fallback = new SqlConnection(FixConnectionString(_connectionString, false));
+                await fallback.OpenAsync();
+                return fallback;
             }
         }
 
-        public Task CloseConnection(SqlConnection connection)
+        #endregion
+
+        #region Generic Query Executor with Error Handling
+
+        private async Task<TResult> ExecuteAsync<TResult>(
+            Func<SqlConnection, Task<TResult>> action,
+            string operationDescription)
         {
-
-            if (connection != null && connection.State == ConnectionState.Open)
-            {
-                return  connection.CloseAsync();
-            }
-
-            return Task.CompletedTask;
-        }
-
-        public void Close()
-        {
-            _connectionToDB?.Close();
-        }
-
-        #region [GetList]
-        public async Task<List<T>> GetList<T>(string strSQL)
-        {
+            await using var conn = await CreateConnectionAsync();
             try
             {
-                await Open();
-                var result = await _connectionToDB.QueryAsync<T>(strSQL);
+                return await action(conn);
+            }
+            catch (SqlException ex)
+            {
+                throw new DatabaseExecutionException($"SQL error during {operationDescription}: {ex.Message}", ex);
+            }
+            catch (TimeoutException ex)
+            {
+                throw new DatabaseExecutionException($"Database timeout during {operationDescription}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseExecutionException($"Unexpected error during {operationDescription}", ex);
+            }
+        }
+
+        private async Task<int> ExecuteAsync(Func<SqlConnection, Task<int>> action, string operationDescription)
+        {
+            await using var conn = await CreateConnectionAsync();
+            try
+            {
+                return await action(conn);
+            }
+            catch (SqlException ex)
+            {
+                throw new DatabaseExecutionException($"SQL error during {operationDescription}: {ex.Message}", ex);
+            }
+            catch (TimeoutException ex)
+            {
+                throw new DatabaseExecutionException($"Database timeout during {operationDescription}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseExecutionException($"Unexpected error during {operationDescription}", ex);
+            }
+        }
+
+        #endregion
+
+        #region Public Query Methods
+
+        public Task<List<T>> GetListAsync<T>(
+            string sql,
+            DynamicParameters? param = null,
+            CommandType cmdType = CommandType.Text)
+            => ExecuteAsync(async conn =>
+            {
+                var result = await conn.QueryAsync<T>(sql, param, commandType: cmdType);
                 return result.ToList();
-            }
-            catch (SqlException ex)
-            {
-                //await CloseConnection(_connectionToDB);
-                throw new Exception("An error occurred while executing the stored procedure.", ex);
-            }
-            finally
-            {
-                await CloseConnection(_connectionToDB);
-            }
-        }
+            }, $"GetListAsync<{typeof(T).Name}> [{cmdType}]");
 
-        public async Task<List<T>> GetList<T>(string strSQL, DynamicParameters parameters)
-        {
-            try
-            {
-                await Open();
-                var result = await _connectionToDB.QueryAsync<T>(strSQL, parameters);
-                return result.ToList();
-            }
-            catch (SqlException ex)
-            {
-                //await CloseConnection(_connectionToDB);
-                throw new Exception("An error occurred while executing the stored procedure.", ex);
-            }
-            finally
-            {
-                await CloseConnection(_connectionToDB);
-            }
-        } 
-        #endregion
+        public Task<T?> GetInstanceAsync<T>(
+            string sql,
+            DynamicParameters? param = null,
+            CommandType cmdType = CommandType.Text)
+            => ExecuteAsync(conn => conn.QueryFirstOrDefaultAsync<T>(sql, param, commandType: cmdType),
+                $"GetInstanceAsync<{typeof(T).Name}> [{cmdType}]");
 
-        #region [GetListSP]
-
-        public async Task<List<T>> GetListSP<T>(string SPName)
-        {
-            try
-            {
-                await Open();
-                var result = await _connectionToDB.QueryAsync<T>(SPName, commandType: CommandType.StoredProcedure);
-                return result.ToList();
-            }
-            catch (SqlException ex)
-            {
-                //await CloseConnection(_connectionToDB);
-                throw new Exception("An error occurred while executing the stored procedure.", ex);
-            }
-            finally
-            {
-                await CloseConnection(_connectionToDB);
-            }
-        }
-
-        public async Task<List<T>> GetListSP<T>(string SPName, DynamicParameters parameters)
-        {
-            try
-            {
-                await Open();
-                var result = await _connectionToDB.QueryAsync<T>(SPName, parameters, commandType: CommandType.StoredProcedure);
-                return result.ToList();
-            }
-            catch (SqlException ex)
-            {
-                //await CloseConnection(_connectionToDB);
-                throw new Exception("An error occurred while executing the stored procedure.", ex);
-            }
-            finally
-            {
-                await CloseConnection(_connectionToDB);
-            }
-        }
-        #endregion
-
-        #region [GetInstance]
-        public async Task<T> GetInstance<T>(string strSQL)
-        {
-            try
-            {
-                await Open();
-                var result = await _connectionToDB.QueryFirstOrDefaultAsync<T>(strSQL);
-                return result;
-            }
-            catch (SqlException ex)
-            {
-                //await CloseConnection(_connectionToDB);
-                throw new Exception("An error occurred while executing the stored procedure.", ex);
-            }
-            finally
-            {
-                await CloseConnection(_connectionToDB);
-            }
-        }
-
-        public async Task<T> GetInstance<T>(string strSQL, DynamicParameters parameters)
-        {
-            try
-            {
-                await Open();
-                var result = await _connectionToDB.QueryFirstOrDefaultAsync<T>(strSQL, parameters);
-                return result;
-            }
-            catch (SqlException ex)
-            {
-                //await CloseConnection(_connectionToDB);
-                throw new Exception("An error occurred while executing the stored procedure.", ex);
-            }
-            finally
-            {
-                await CloseConnection(_connectionToDB);
-            }
-        }
+        public Task<int> ExecuteNonQueryAsync(
+            string sql,
+            DynamicParameters? param = null,
+            CommandType cmdType = CommandType.Text)
+            => ExecuteAsync(conn => conn.ExecuteAsync(sql, param, commandType: cmdType),
+                $"ExecuteNonQueryAsync [{cmdType}]");
 
         #endregion
 
-        #region[GetInstanceSP]
+        #region JSON Query Support
 
-        public async Task<T> GetInstanceSP<T>(string SPName)
-        {
-            try
-            {
-                await Open();
-                var result = await _connectionToDB.QueryFirstOrDefaultAsync<T>(SPName, commandType: CommandType.StoredProcedure);
-                return result;
-            }
-            catch (SqlException ex)
-            {
-                //await CloseConnection(_connectionToDB);
-                throw new Exception("An error occurred while executing the stored procedure.", ex);
-            }
-            finally
-            {
-                await CloseConnection(_connectionToDB);
-            }
-        }
-
-        public async Task<T> GetInstanceSP<T>(string SPName, DynamicParameters parameters)
-        {
-            try
-            {
-                await Open();
-                var result = await _connectionToDB.QueryFirstOrDefaultAsync<T>(SPName, parameters, commandType: CommandType.StoredProcedure);
-                return result;
-            }
-            catch (SqlException ex)
-            {
-                //await CloseConnection(_connectionToDB);
-                throw new Exception("An error occurred while executing the stored procedure.", ex);
-            }
-            finally
-            {
-                await CloseConnection(_connectionToDB);
-            }
-        }
-
-        #endregion
-
-        #region [ExecuteNonQuerySP]
-        public async Task<int> ExecuteNonQuerySP(string SPName)
-        {
-            try
-            {
-                await Open();
-                var result = await _connectionToDB.ExecuteAsync(SPName, commandType: CommandType.StoredProcedure);
-                return result;
-            }
-            catch (SqlException ex)
-            {
-                //await CloseConnection(_connectionToDB);
-                throw new Exception("An error occurred while executing the stored procedure.", ex);
-            }
-            finally
-            {
-                await CloseConnection(_connectionToDB);
-            }
-        }
-
-        public async Task<int> ExecuteNonQuerySP(string SPName, DynamicParameters parameters)
-        {
-            try
-            {
-                await Open();
-                var result = await _connectionToDB.ExecuteAsync(SPName, parameters, commandType: CommandType.StoredProcedure);
-                return result;
-            }
-            catch (SqlException ex)
-            {
-                //await CloseConnection(_connectionToDB);
-                throw new Exception("An error occurred while executing the stored procedure.", ex);
-            }
-            finally
-            {
-                await CloseConnection(_connectionToDB);
-            }
-        }
-
-        #endregion
-
-        #region[GetListJsonSP]
-        public class JsonData
+        private class JsonData
         {
             public int? TotalRows { get; set; }
             public string? JColumn { get; set; }
         }
 
         /// <summary>
-        /// Data from the database must have a column named "JColumn" with return type json
+        /// Data returned must include a column named "JColumn" as JSON content.
         /// </summary>
-        /// <param name="strSQL"></param>
-        /// <param name="cType"></param>
-        /// <param name="pars"></param>
-        /// <returns></returns>
-        public async Task<(List<Object> data, int? totalRows)> GetListJsonSP(string strSQL, CommandType cType, DynamicParameters? parameters = null)
+        public async Task<(List<object> Data, int? TotalRows)> GetListJsonAsync(
+            string sql, CommandType cmdType, DynamicParameters? param = null)
         {
-            int? totalRows = 0;
-            List<Object> retData = new List<Object>();
-            List<JsonData> data = null;
-            if (cType == CommandType.StoredProcedure)
+            return await ExecuteAsync(async conn =>
             {
-                if (parameters != null) {
-                    data = await GetListSP<JsonData>(strSQL, parameters);
-                }
-                else
-                {
-                    data = await GetListSP<JsonData>(strSQL);
-                }
-            }
-            else
-            {
-                data = await GetList<JsonData>(strSQL);
-            }
-            if (data != null)
-            {
+                var data = await conn.QueryAsync<JsonData>(sql, param, commandType: cmdType);
+                var result = new List<object>();
+                int? totalRows = 0;
+
                 foreach (var item in data)
                 {
-                    retData.Add(JsonConvert.DeserializeObject(item.JColumn));
-                    totalRows = item.TotalRows;
+                    if (!string.IsNullOrEmpty(item.JColumn))
+                        result.Add(JsonConvert.DeserializeObject(item.JColumn)!);
+                    totalRows = item.TotalRows ?? totalRows;
                 }
-            }
-            return (retData, totalRows);
+
+                return (result, totalRows);
+            }, "GetListJsonAsync");
         }
+
         #endregion
+    }
+
+    /// <summary>
+    /// Custom exception type for database execution failures.
+    /// </summary>
+    public class DatabaseExecutionException : Exception
+    {
+        public DatabaseExecutionException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 }
