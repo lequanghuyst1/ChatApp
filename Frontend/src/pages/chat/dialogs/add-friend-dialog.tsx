@@ -50,38 +50,47 @@ function AddFriendDialog({ open, onClose }: Props) {
     setValue(newValue);
   };
 
-  const handleAddFriend = useCallback(async (userID: number) => {
-    try {
-      const { code, message } = await addRequestFriend(userID);
-      if (code === 1) {
-        onClose();
+  const handleAddFriend = useCallback(
+    async (userID: number) => {
+      try {
+        const { code } = await addRequestFriend(userID);
+        if (code === 1) {
+          onClose();
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
+    },
+    [onClose]
+  );
 
-  const handleAcceptFriend = useCallback(async (friendID: number) => {
-    try {
-      const { code, message } = await acceptFriend(friendID);
-      if (code === 1) {
-        onClose();
+  const handleAcceptFriend = useCallback(
+    async (friendID: number) => {
+      try {
+        const { code } = await acceptFriend(friendID);
+        if (code === 1) {
+          onClose();
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
+    },
+    [onClose]
+  );
 
-  const handleRejectFriend = useCallback(async (friendID: number) => {
-    try {
-      const { code, message } = await rejectFriend(friendID);
-      if (code === 1) {
-        onClose();
+  const handleRejectFriend = useCallback(
+    async (friendID: number) => {
+      try {
+        const { code } = await rejectFriend(friendID);
+        if (code === 1) {
+          onClose();
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
+    },
+    [onClose]
+  );
 
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>

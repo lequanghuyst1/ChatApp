@@ -39,7 +39,6 @@ function ChatDetail({ chatID }: Props) {
     messages: listMessages,
     messagesLoading,
     messagesError,
-    messagesValidating,
     totalRec,
   } = useGetListMessageByChat(filters);
 

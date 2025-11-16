@@ -1,5 +1,5 @@
-import { AccountType } from "./enums";
-import { IUserProfile } from "./profile";
+import { AccountType } from './enums';
+import { IUserProfile } from './profile';
 
 export interface IAccount {
   UserID: number;

@@ -1,1 +1,1 @@
-export { default } from "./jwt-login-view";
+export { default } from './jwt-login-view';
