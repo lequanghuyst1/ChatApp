@@ -24,6 +24,18 @@ on:
       # Chỉ chạy khi PR có thay đổi trong Frontend
       - 'Frontend/**'
 
+  # Cho phép chạy manual từ Actions tab
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy to GitHub Pages?'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
 jobs:
   # Job chính: Lint, Test và Build
   lint-test-build:
@@ -95,13 +107,16 @@ jobs:
           retention-days: 7                        # Giữ artifacts trong 7 ngày
           compression-level: 6                     # Nén file để tiết kiệm storage
 
-  # Job deploy: Deploy lên GitHub Pages (chỉ chạy khi push vào main)
+  # Job deploy: Deploy lên GitHub Pages
   deploy:
     name: Deploy to GitHub Pages
     needs: lint-test-build  # Phụ thuộc vào job lint-test-build
     runs-on: ubuntu-latest
-    # Chỉ deploy khi push vào main branch (không deploy PR)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Deploy khi: push vào main, Pull Request, HOẶC manual trigger với deploy=true
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && inputs.deploy == 'true')
 
     # Cấp quyền ghi vào GitHub Pages
     permissions:
