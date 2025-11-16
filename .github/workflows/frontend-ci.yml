@@ -112,10 +112,10 @@ jobs:
     name: Deploy to GitHub Pages
     needs: lint-test-build  # Phụ thuộc vào job lint-test-build
     runs-on: ubuntu-latest
-    # Deploy khi: push vào main, Pull Request, HOẶC manual trigger với deploy=true
+    # Deploy khi: push vào main, Pull Request vào main, HOẶC manual trigger với deploy=true
     if: |
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'pull_request' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && github.base_ref == 'main') ||
       (github.event_name == 'workflow_dispatch' && inputs.deploy == 'true')
 
     # Cấp quyền ghi vào GitHub Pages
