@@ -58,27 +58,93 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Bước 4: Chạy ESLint để kiểm tra code style và quality
-      # Workflow sẽ fail nếu có lỗi lint
+      # Bước 4: Kiểm tra code formatting với Prettier
+      # Đảm bảo code đã được format đúng chuẩn
+      - name: Check code formatting
+        run: npm run format:check
+        continue-on-error: true  # Không fail workflow nếu format sai, chỉ warning
+
+      # Bước 5: Chạy ESLint để kiểm tra code style và quality
+      # Workflow sẽ fail nếu có lỗi lint (errors), warnings không fail
       - name: Run ESLint
         run: npm run lint
 
-      # Bước 5: Chạy tất cả unit tests với Jest
+      # Bước 6: Chạy tất cả unit tests với Jest
       # Flag --ci: Tối ưu cho CI environment, không watch mode
       - name: Run tests
         run: npm run test:ci
 
-      # Bước 6: Build production bundle với TypeScript và Vite
+      # Bước 7: Build production bundle với TypeScript và Vite
       # Kiểm tra xem code có build thành công không
       - name: Build project
         run: npm run build
+        env:
+          # Set NODE_ENV để optimize production build
+          NODE_ENV: production
+          # Set GITHUB_PAGES cho build deploy lên GitHub Pages
+          GITHUB_PAGES: ${{ github.ref == 'refs/heads/main' && 'true' || '' }}
 
-      # Bước 7: Upload build artifacts (chỉ khi tất cả steps trên thành công)
+      # Bước 8: Upload build artifacts (chỉ khi tất cả steps trên thành công)
       # Lưu trữ build output để có thể download sau này nếu cần
       - name: Upload build artifacts
         if: success()  # Chỉ chạy nếu tất cả steps trước đó thành công
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-build           # Tên của artifact
-          path: Frontend/dist            # Thư mục chứa build output
-          retention-days: 7              # Giữ artifacts trong 7 ngày
+          name: frontend-build-${{ github.sha }}  # Tên artifact với commit SHA
+          path: Frontend/dist                      # Thư mục chứa build output
+          retention-days: 7                        # Giữ artifacts trong 7 ngày
+          compression-level: 6                     # Nén file để tiết kiệm storage
+
+  # Job deploy: Deploy lên GitHub Pages (chỉ chạy khi push vào main)
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: lint-test-build  # Phụ thuộc vào job lint-test-build
+    runs-on: ubuntu-latest
+    # Chỉ deploy khi push vào main branch (không deploy PR)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    # Cấp quyền ghi vào GitHub Pages
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    # Đảm bảo chỉ có 1 deployment chạy tại 1 thời điểm
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      # Bước 1: Download build artifacts từ job trước
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build-${{ github.sha }}
+          path: ./dist
+
+      # Bước 2: Setup GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # Bước 3: Upload artifacts lên GitHub Pages
+      - name: Upload artifact to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      # Bước 4: Deploy lên GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      # Bước 5: Thông báo deploy thành công
+      - name: Deployment summary
+        run: |
+          echo "✅ Deployment successful!"
+          echo "🚀 Your site is live at: ${{ steps.deployment.outputs.page_url }}"
+          echo "📦 Deployed commit: ${{ github.sha }}"
+          echo "⏰ Deployed at: $(date)"
