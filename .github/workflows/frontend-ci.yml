@@ -102,6 +102,7 @@ jobs:
         if: success()  # Chỉ chạy nếu tất cả steps trước đó thành công
         uses: actions/upload-artifact@v4
         with:
+<<<<<<< Updated upstream
           name: frontend-build-${{ github.sha }}  # Tên artifact với commit SHA
           path: Frontend/dist                      # Thư mục chứa build output
           retention-days: 7                        # Giữ artifacts trong 7 ngày
@@ -163,3 +164,8 @@ jobs:
           echo "🚀 Your site is live at: ${{ steps.deployment.outputs.page_url }}"
           echo "📦 Deployed commit: ${{ github.sha }}"
           echo "⏰ Deployed at: $(date)"
+=======
+          name: frontend-build           # Tên của artifact
+          path: Frontend/dist            # Thư mục chứa build output
+          retention-days: 7          
+>>>>>>> Stashed changes
