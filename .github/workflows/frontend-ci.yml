@@ -11,7 +11,7 @@ name: Frontend CI/CD
 on:
   # Chạy khi push code lên các branch sau
   push:
-    branches: [main, develop]
+    branches: [main, staging]
     paths:
       # Chỉ chạy khi có thay đổi trong Frontend hoặc workflow file
       - 'Frontend/**'
@@ -19,7 +19,7 @@ on:
 
   # Chạy khi tạo Pull Request vào main hoặc develop
   pull_request:
-    branches: [main, develop]
+    branches: [main, staging]
     paths:
       # Chỉ chạy khi PR có thay đổi trong Frontend
       - 'Frontend/**'
