@@ -40,63 +40,6 @@ export const poster = async (args: string | [string, any]) => {
   return response.data;
 };
 
-// const createEndpoints = (base: string, paths: Record<string, string>) => {
-//   const result: Record<string, string> = {};
-//   for (const [key, path] of Object.entries(paths)) {
-//     result[key] = `${base}/api/${path}`;
-//   }
-//   return result;
-// };
-
-// export const endpoints = {
-//   auth: createEndpoints('account', {
-//     login: 'login',
-//     register: 'register',
-//     retoken: 'refresh-token',
-//   } as const),
-//   friend: createEndpoints('friend', {
-//     getList: 'get-list',
-//     getListRequest: 'list-request',
-//     addFriend: 'add',
-//     removeFriend: 'remove',
-//     acceptFriend: 'accept',
-//     rejectFriend: 'reject',
-//     blockFriend: 'block',
-//     unblockFriend: 'unblock',
-//   }),
-//   chat: createEndpoints('chat', {
-//     getList: 'get-list',
-//     createChat: 'create',
-//     updateChat: 'update',
-//     deleteChat: 'delete',
-//     addParticipant: 'add-participant',
-//     removeParticipant: 'remove-participant',
-//     leaveChat: 'leave',
-//     getChatById: 'get-by-id',
-//   }),
-//   chatParticipant: createEndpoints('chat-participant', {
-//     getListByChat: 'list',
-//     add: 'add',
-//     remove: 'remove',
-//   }),
-//   message: createEndpoints('message', {
-//     getListByChat: 'get-list-by-chat',
-//     send: 'send',
-//     edit: 'edit',
-//     delete: 'delete',
-//   }),
-//   profile: createEndpoints('profile', {
-//     getProfile: 'get-profile',
-//     getUsers: 'get-users',
-//   }),
-//   reaction: createEndpoints('reaction', {
-//     getListByMessage: 'list',
-//     add: 'add',
-//     update: 'update',
-//     remove: 'remove',
-//   }),
-// };
-
 const BASE_PATHS = {
   account: `api/account`,
   friend: `api/friend`,
