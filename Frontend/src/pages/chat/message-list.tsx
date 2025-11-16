@@ -7,12 +7,12 @@ import {
   Stack,
   styled,
   Typography,
-} from "@mui/material";
-import React, { useRef, useEffect, useCallback } from "react";
-import { format } from "date-fns";
-import vi from "date-fns/locale/vi";
-import { IMessage } from "@/types/message";
-import { useAppSelector } from "@/stores/hook";
+} from '@mui/material';
+import React, { useRef, useEffect, useCallback } from 'react';
+import { format } from 'date-fns';
+import vi from 'date-fns/locale/vi';
+import { IMessage } from '@/types/message';
+import { useAppSelector } from '@/stores/hook';
 
 type Props = {
   messages: IMessage[];
@@ -66,9 +66,9 @@ const isDifferentDay = (d1: Date, d2: Date) => {
 
 function MessageList({
   messages,
-  totalRec,
+  totalRec: _totalRec,
   isLoading,
-  error,
+  error: _error,
   onLoadMore,
   hasMore,
 }: Props) {
@@ -85,7 +85,7 @@ function MessageList({
   // Handle scroll to load more messages
   const handleScroll = useCallback(() => {
     if (!listRef.current || isLoading || !hasMore) return;
-    
+
     const { scrollTop } = listRef.current;
     if (scrollTop < 100 && !loadingRef.current) {
       loadingRef.current = true;
@@ -109,12 +109,12 @@ function MessageList({
   }, [messages]);
 
   return (
-    <Box 
+    <Box
       ref={listRef}
       onScroll={handleScroll}
-      sx={{ 
-        pl: 1.5, 
-        height: '100%', 
+      sx={{
+        pl: 1.5,
+        height: '100%',
         overflowY: 'auto',
         '&::-webkit-scrollbar': {
           width: '6px',
@@ -136,15 +136,12 @@ function MessageList({
         <Stack
           direction="row"
           key={`${item.senderID}-${index}`}
-          sx={{ width: "100%" }}
+          sx={{ width: '100%' }}
           alignItems="flex-end"
-          justifyContent={isSender(item.senderID) ? "flex-end" : "flex-start"}
+          justifyContent={isSender(item.senderID) ? 'flex-end' : 'flex-start'}
         >
           {!isSender(item.senderID) && (
-            <Avatar
-              src={item.senderAvatar || ""}
-              sx={{ width: 32, height: 32 }}
-            />
+            <Avatar src={item.senderAvatar || ''} sx={{ width: 32, height: 32 }} />
           )}
           <List sx={{ py: 0, flex: 1 }}>
             {item.messages.map((msg, msIndex) => {
@@ -153,11 +150,10 @@ function MessageList({
                 index === 0 && msIndex === 0
                   ? null
                   : msIndex > 0
-                  ? item.messages[msIndex - 1]
-                  : grouped[index - 1]?.messages.slice(-1)[0];
+                    ? item.messages[msIndex - 1]
+                    : grouped[index - 1]?.messages.slice(-1)[0];
 
-              const showDate =
-                !prevMsg || isDifferentDay(msg.createdAt, prevMsg.createdAt);
+              const showDate = !prevMsg || isDifferentDay(msg.createdAt, prevMsg.createdAt);
 
               const formatString = "HH:mm dd 'Tháng' M, yyyy";
 
@@ -170,10 +166,7 @@ function MessageList({
                       alignItems="center"
                       sx={{ my: 1, flex: 1 }}
                     >
-                      <Typography
-                        variant="caption"
-                        sx={{ color: "gray", fontSize: "0.75rem" }}
-                      >
+                      <Typography variant="caption" sx={{ color: 'gray', fontSize: '0.75rem' }}>
                         {format(new Date(msg.createdAt), formatString, {
                           locale: vi,
                         })}
@@ -183,24 +176,17 @@ function MessageList({
 
                   <ListItem
                     sx={{
-                      justifyContent: isSender(msg.senderID)
-                        ? "flex-end"
-                        : "flex-start",
-                      my: "0",
-                      py: "0.1rem",
-                      px: "0.6rem",
+                      justifyContent: isSender(msg.senderID) ? 'flex-end' : 'flex-start',
+                      my: '0',
+                      py: '0.1rem',
+                      px: '0.6rem',
                     }}
                   >
                     <MessageTextStyle
-                      primary={
-                        <Typography variant="body1">{msg.content}</Typography>
-                      }
+                      primary={<Typography variant="body1">{msg.content}</Typography>}
                       isSender={isSender(msg.senderID)}
                       isFirst={item.messages.length > 1 && msIndex === 0}
-                      isLast={
-                        item.messages.length > 1 &&
-                        msIndex === item.messages.length - 1
-                      }
+                      isLast={item.messages.length > 1 && msIndex === item.messages.length - 1}
                       isOnly={item.messages.length === 1}
                     />
                   </ListItem>
@@ -228,10 +214,10 @@ const getBorderRadii = (props: MessageTextStyleProps) => {
   const { isSender, isFirst, isLast, isOnly } = props;
   // Default border radii for all corners
   const radii = {
-    borderTopLeftRadius: "16px",
-    borderTopRightRadius: "16px",
-    borderBottomLeftRadius: "16px",
-    borderBottomRightRadius: "16px",
+    borderTopLeftRadius: '16px',
+    borderTopRightRadius: '16px',
+    borderBottomLeftRadius: '16px',
+    borderBottomRightRadius: '16px',
   };
 
   if (isOnly) return radii; // All corners rounded for single messages
@@ -240,19 +226,19 @@ const getBorderRadii = (props: MessageTextStyleProps) => {
     if (isFirst) {
       return {
         ...radii,
-        borderBottomRightRadius: "2px",
+        borderBottomRightRadius: '2px',
       };
     }
     if (isLast) {
       return {
         ...radii,
-        borderTopRightRadius: "2px",
+        borderTopRightRadius: '2px',
       };
     }
     return {
       ...radii,
-      borderTopRightRadius: "2px",
-      borderBottomRightRadius: "2px",
+      borderTopRightRadius: '2px',
+      borderBottomRightRadius: '2px',
     };
   }
 
@@ -260,29 +246,29 @@ const getBorderRadii = (props: MessageTextStyleProps) => {
   if (isFirst) {
     return {
       ...radii,
-      borderBottomLeftRadius: "2px",
+      borderBottomLeftRadius: '2px',
     };
   }
   if (isLast) {
     return {
       ...radii,
-      borderTopLeftRadius: "2px",
+      borderTopLeftRadius: '2px',
     };
   }
   return {
     ...radii,
-    borderTopLeftRadius: "2px",
-    borderBottomLeftRadius: "2px",
+    borderTopLeftRadius: '2px',
+    borderBottomLeftRadius: '2px',
   };
 };
 
 const MessageTextStyle = styled(ListItemText, {
   shouldForwardProp: (prop) =>
-    !["isSender", "isFirst", "isLast", "isOnly"].includes(prop as string),
-})<MessageTextStyleProps>(({ theme, isSender, isFirst, isLast, isOnly }) => ({
-  backgroundColor: isSender ? "#4a90e2" : "#333",
-  color: "#fff",
-  padding: "6px 12px",
-  flex: "0 0 auto",
+    !['isSender', 'isFirst', 'isLast', 'isOnly'].includes(prop as string),
+})<MessageTextStyleProps>(({ isSender, isFirst, isLast, isOnly }) => ({
+  backgroundColor: isSender ? '#4a90e2' : '#333',
+  color: '#fff',
+  padding: '6px 12px',
+  flex: '0 0 auto',
   ...getBorderRadii({ isSender, isFirst, isLast, isOnly }),
 }));

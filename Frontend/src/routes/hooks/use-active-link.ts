@@ -11,7 +11,8 @@ export function useActiveLink(path: string, deep = true): ReturnType {
 
   const deepActive = path ? !!matchPath({ path, end: false }, pathname) : false;
 
-  const hierarchyActive = (path.split('/').length > 2 && pathname.split('/').length > 3 && pathname.startsWith(path));
+  const hierarchyActive =
+    path.split('/').length > 2 && pathname.split('/').length > 3 && pathname.startsWith(path);
 
-  return deep ? deepActive : (normalActive || hierarchyActive);
+  return deep ? deepActive : normalActive || hierarchyActive;
 }

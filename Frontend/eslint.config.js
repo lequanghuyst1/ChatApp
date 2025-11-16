@@ -19,5 +19,21 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Tắt các rules quá strict
+      'no-useless-catch': 'off', // Cho phép try/catch chỉ throw lại
+      '@typescript-eslint/no-explicit-any': 'warn', // Warning thay vì error cho 'any' type
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_', // Cho phép unused vars nếu bắt đầu bằng _
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
+      '@typescript-eslint/ban-ts-comment': 'warn', // Warning cho @ts-ignore
+      'react-refresh/only-export-components': 'warn', // Warning thay vì error
+      'react-hooks/exhaustive-deps': 'warn', // Warning cho missing dependencies
+    },
   },
 ])

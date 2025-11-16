@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { HOST_CHAT_API } from '../config-global';
 
-export interface APIResponse<T = any> {
+export interface APIResponse<T> {
   data: T;
   code: number;
   message: string;

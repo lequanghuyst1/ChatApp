@@ -1,17 +1,17 @@
 // ----------------------------------------------------------------------
 
-import { paths } from "@/routes/paths";
-import axiosInstance, { endpoints } from "@/utils/axios";
+import { paths } from '@/routes/paths';
+import axiosInstance, { endpoints } from '@/utils/axios';
 
 export function jwtDecode(token: string) {
-  const base64Url = token.split(".")[1];
-  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
   const jsonPayload = decodeURIComponent(
     window
       .atob(base64)
-      .split("")
+      .split('')
       .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
-      .join("")
+      .join('')
   );
 
   return JSON.parse(jsonPayload);
@@ -76,8 +76,8 @@ export const tokenExpired = (exp: number) => {
   checkExpiration();
 
   if (!visibilityListenerAttached) {
-    window.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") {
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
         checkExpiration();
       }
     });
@@ -89,8 +89,8 @@ export const tokenExpired = (exp: number) => {
 
 export const setSession = (accessToken: string | null) => {
   if (accessToken) {
-    sessionStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("accessToken", accessToken);
+    sessionStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('accessToken', accessToken);
 
     axiosInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
@@ -98,7 +98,7 @@ export const setSession = (accessToken: string | null) => {
     const { exp } = jwtDecode(accessToken); // ~3 days by minimals server
     tokenExpired(exp);
   } else {
-    localStorage.removeItem("accessToken");
+    localStorage.removeItem('accessToken');
 
     delete axiosInstance.defaults.headers.common.Authorization;
   }
@@ -108,13 +108,13 @@ export const setSession = (accessToken: string | null) => {
 
 export const setRefreshToken = (refreshToken: string | null) => {
   if (refreshToken) {
-    localStorage.setItem("refreshToken", refreshToken);
+    localStorage.setItem('refreshToken', refreshToken);
 
     // This function below will handle when token is expired
-    const { exp } = jwtDecode(refreshToken); // ~3 days by minimals server
+    // const { exp } = jwtDecode(refreshToken); // ~3 days by minimals server
     // tokenExpired(exp);
   } else {
-    localStorage.removeItem("refreshToken");
+    localStorage.removeItem('refreshToken');
 
     delete axiosInstance.defaults.headers.common.Authorization;
   }
@@ -123,7 +123,7 @@ export const setRefreshToken = (refreshToken: string | null) => {
 // ----------------------------------------------------------------------
 
 export const reFreshToken = async () => {
-  const refreshToken = localStorage.getItem("refreshToken");
+  const refreshToken = localStorage.getItem('refreshToken');
   if (!refreshToken) {
     window.location.href = paths.auth.login;
     return;
@@ -136,10 +136,10 @@ export const reFreshToken = async () => {
 
     setSession(accessToken);
     setRefreshToken(newRefreshToken);
-  } catch (error) {
-    // console.error('Error refreshing token:', error);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+  } catch {
+    // console.error('Error refreshing token');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     window.location.href = paths.auth.login;
   }
 };

@@ -3,9 +3,9 @@ import {
   HubConnectionBuilder,
   HubConnectionState,
   LogLevel,
-} from "@microsoft/signalr";
-import { useEffect, useState } from "react";
-import { HOST_CHAT_API } from "@/config-global";
+} from '@microsoft/signalr';
+import { useEffect, useState } from 'react';
+import { HOST_CHAT_API } from '@/config-global';
 
 export interface ISocketOnEvent {
   methodName: string;
@@ -13,16 +13,14 @@ export interface ISocketOnEvent {
 }
 
 function useSignalR() {
-  const [state, setHubState] = useState<HubConnectionState>(
-    HubConnectionState.Connecting
-  );
+  const [state, setHubState] = useState<HubConnectionState>(HubConnectionState.Connecting);
 
   const [hubConnection, setHubConnection] = useState<HubConnection>();
 
   useEffect(() => {
     try {
       if (!hubConnection) {
-        const accessToken = localStorage.getItem("accessToken");
+        const accessToken = localStorage.getItem('accessToken');
 
         const hub = new HubConnectionBuilder()
           .withUrl(`${HOST_CHAT_API}/chatHub`, {

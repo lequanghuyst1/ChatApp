@@ -1,11 +1,10 @@
-import { Navigate, useRoutes } from "react-router-dom";
-import { mainRoutes } from "./main";
-import { authRoutes } from "./auth";
+import { Navigate, useRoutes } from 'react-router-dom';
+import { mainRoutes } from './main';
+import { authRoutes } from './auth';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
-
   return useRoutes([
     // {
     //   path: "/",
@@ -19,6 +18,6 @@ export default function Router() {
     ...authRoutes,
 
     // No match 404
-    { path: "*", element: <Navigate to="/login" replace /> },
+    { path: '*', element: <Navigate to="/login" replace /> },
   ]);
 }

@@ -1,4 +1,4 @@
-import { ChatParticipantType } from "./enums";
+import { ChatParticipantType } from './enums';
 
 export interface IChatParticipant {
   id: number;

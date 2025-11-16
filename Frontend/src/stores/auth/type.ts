@@ -1,5 +1,5 @@
-import { ILoginRequest, IRegisterRequest } from "@/types/account";
-import { IUserProfile } from "@/types/profile";
+import { ILoginRequest, IRegisterRequest } from '@/types/account';
+import { IUserProfile } from '@/types/profile';
 
 export type JWTContextType = {
   user: IUserProfile | null;

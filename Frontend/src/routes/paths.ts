@@ -1,13 +1,13 @@
 export const paths = {
   auth: {
-    login: "/login",
-    register: "/register",
+    login: '/login',
+    register: '/register',
   },
   chat: {
-    root: "/chat",
-    detail: "/chat/:id",
+    root: '/chat',
+    detail: '/chat/:id',
   },
   dashboard: {
-    root: "/dashboard",
+    root: '/dashboard',
   },
 };

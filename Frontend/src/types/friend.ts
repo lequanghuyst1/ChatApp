@@ -1,4 +1,4 @@
-import { FriendStatus } from "./enums";
+import { FriendStatus } from './enums';
 
 export interface IFriend {
   id: number;

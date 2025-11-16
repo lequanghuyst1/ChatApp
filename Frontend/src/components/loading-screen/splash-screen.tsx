@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { alpha } from '@mui/material/styles';
 import Box, { BoxProps } from '@mui/material/Box';
 
-
 // ----------------------------------------------------------------------
 
 export default function SplashScreen({ sx, ...other }: BoxProps) {

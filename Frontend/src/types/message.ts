@@ -1,5 +1,5 @@
-import { MessageType } from "./enums";
-import { IPagination } from "./common";
+import { MessageType } from './enums';
+import { IPagination } from './common';
 
 export interface ISearchMessage extends IPagination {
   chatID: number;

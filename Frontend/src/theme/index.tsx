@@ -1,23 +1,19 @@
-import { useMemo } from "react";
-import merge from "lodash/merge";
+import { useMemo } from 'react';
+import merge from 'lodash/merge';
 
-import CssBaseline from "@mui/material/CssBaseline";
-import {
-  createTheme,
-  ThemeOptions,
-  ThemeProvider as MuiThemeProvider,
-} from "@mui/material/styles";
+import CssBaseline from '@mui/material/CssBaseline';
+import { createTheme, ThemeOptions, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 
 // system
-import { palette } from "./palette";
-import { shadows } from "./shadows";
-import { typography } from "./typography";
+import { palette } from './palette';
+import { shadows } from './shadows';
+import { typography } from './typography';
 // options
-import RTL from "./options/right-to-left";
-import { customShadows } from "./custom-shadows";
-import { componentsOverrides } from "./overrides";
-import { createPresets } from "./options/presets";
-import { createContrast } from "./options/contrast";
+import RTL from './options/right-to-left';
+import { customShadows } from './custom-shadows';
+import { componentsOverrides } from './overrides';
+import { createPresets } from './options/presets';
+import { createContrast } from './options/contrast';
 
 // ----------------------------------------------------------------------
 
@@ -26,23 +22,23 @@ type Props = {
 };
 
 export default function ThemeProvider({ children }: Props) {
-  const presets = createPresets("cyan");
+  const presets = createPresets('cyan');
 
-  const contrast = createContrast("default", "light");
+  const contrast = createContrast('default', 'light');
 
   const memoizedValue = useMemo(
     () => ({
       palette: {
-        ...palette("light"),
+        ...palette('light'),
         ...presets.palette,
         ...contrast.palette,
       },
       customShadows: {
-        ...customShadows("light"),
+        ...customShadows('light'),
         ...presets.customShadows,
       },
-      direction: "ltr",
-      shadows: shadows("light"),
+      direction: 'ltr',
+      shadows: shadows('light'),
       shape: { borderRadius: 8 },
       typography,
     }),

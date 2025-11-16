@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { ILoginRequest, IRegisterRequest } from '@/types/account';
 import { loginApi, registerApi } from '@/apis/account';
 import { IUserProfile } from '@/types/profile';
-import axiosInstance from '@/utils/axios';
+// import axiosInstance from '@/utils/axios';
 import { isValidToken, jwtDecode, setRefreshToken, setSession } from '../auth';
 
 type LoginPayload = { user: IUserProfile; token: string };
