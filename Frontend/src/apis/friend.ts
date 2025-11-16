@@ -116,24 +116,24 @@ export const rejectFriend = async (friendID: number) => {
 };
 
 export const blockFriend = async (friendID: number) => {
-  try {
-    const res = await axiosInstance.post<APIResponse<number>>(`${URL.blockFriend}`, {
-      FriendID: friendID,
+  const res = await axiosInstance.post<APIResponse<number>>(`${URL.blockFriend}`, {
+    FriendID: friendID,
+  });
+
+  const { data, code, message } = res.data;
+
+  if (code === 1) {
+    mutate(`${URL.getList}`, (currentData: APIResponse<IFriend[]> | undefined) => {
+      if (!currentData) return currentData;
+      const newData = currentData.data.filter((friend: IFriend) => friend.friendID !== friendID);
+      return {
+        ...currentData,
+        data: newData,
+      };
     });
-
-    const { data, code, message } = res.data;
-
-    if (code === 1) {
-      mutate(`${URL.getList}`, (currentData: any) => {
-        const newData = currentData?.data?.filter((friend: any) => friend.friendID !== friendID);
-        return { ...currentData, data: newData };
-      });
-    }
-
-    return { data, code, message };
-  } catch (error) {
-    throw error;
   }
+
+  return { data, code, message };
 };
 
 export const unblockFriend = async (friendID: number) => {

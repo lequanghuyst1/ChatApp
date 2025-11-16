@@ -63,51 +63,51 @@ export const useGetChatDetail = (chatID: number) => {
 };
 
 export const leaveChat = async (chatID: number) => {
-  try {
-    const response = await axiosInstance.post<APIResponse<number>>(`${URL.leaveChat}`, {
-      ChatID: chatID,
-    });
+  const response = await axiosInstance.post<APIResponse<number>>(`${URL.leaveChat}`, {
+    ChatID: chatID,
+  });
 
-    const { data, code, message } = response.data;
+  const { data, code, message } = response.data;
 
-    if (code === 1) {
-      mutate(
-        `${URL.getList}`,
-        (currentData: any) => {
-          const newData = currentData?.data?.filter((chat: any) => chat.chatID !== chatID);
-          return { ...currentData, data: newData };
-        },
-        false
-      );
-    }
-
-    return { data, code, message };
-  } catch (error) {
-    throw error;
+  if (code === 1) {
+    mutate(
+      `${URL.getList}`,
+      (currentData: APIResponse<IChat[]> | undefined) => {
+        if (!currentData) return currentData;
+        const newData = currentData.data.filter((chat: IChat) => chat.id !== chatID);
+        return {
+          ...currentData,
+          data: newData,
+        };
+      },
+      false
+    );
   }
+
+  return { data, code, message };
 };
 
 export const deleteChat = async (chatID: number) => {
-  try {
-    const response = await axiosInstance.post<APIResponse<number>>(`${URL.deleteChat}`, {
-      ChatID: chatID,
-    });
+  const response = await axiosInstance.post<APIResponse<number>>(`${URL.deleteChat}`, {
+    ChatID: chatID,
+  });
 
-    const { data, code, message } = response.data;
+  const { data, code, message } = response.data;
 
-    if (code === 1) {
-      mutate(
-        `${URL.getList}`,
-        (currentData: any) => {
-          const newData = currentData?.data?.filter((chat: any) => chat.chatID !== chatID);
-          return { ...currentData, data: newData };
-        },
-        false
-      );
-    }
-
-    return { data, code, message };
-  } catch (error) {
-    throw error;
+  if (code === 1) {
+    mutate(
+      `${URL.getList}`,
+      (currentData: APIResponse<IChat[]> | undefined) => {
+        if (!currentData) return currentData;
+        const newData = currentData.data.filter((chat: IChat) => chat.id !== chatID);
+        return {
+          ...currentData,
+          data: newData,
+        };
+      },
+      false
+    );
   }
+
+  return { data, code, message };
 };
