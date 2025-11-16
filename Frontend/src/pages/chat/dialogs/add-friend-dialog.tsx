@@ -46,7 +46,7 @@ function AddFriendDialog({ open, onClose }: Props) {
 
   const { friendsRequest } = useGetListFriendRequest();
 
-  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+  const handleChange = (_: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
 
