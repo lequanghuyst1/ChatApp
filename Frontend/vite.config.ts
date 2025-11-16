@@ -25,7 +25,6 @@ export default defineConfig({
   },
   build: {
     // Tối ưu cho production
-    minify: 'terser',
     sourcemap: false,
   },
 });
